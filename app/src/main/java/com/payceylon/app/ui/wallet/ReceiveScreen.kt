@@ -166,7 +166,11 @@ fun ReceiveScreen(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+<<<<<<< HEAD
                 ProfileAvatar(photo, size = 60.dp, name = user.name)
+=======
+                ProfileAvatar(photo, size = 60.dp)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = user.name,

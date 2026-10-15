@@ -67,6 +67,7 @@ val CryptoWalletColors = WalletColors(
     isDark = true,
     background = Color(0xFF040404),
     page = Color(0xFF040404),
+<<<<<<< HEAD
     // Lifted well off the #040404 page so cards read as surfaces, not just outlines.
     card = Color(0xFF1C1C1E),
     frosted = Color(0xE01C1C1E),
@@ -80,6 +81,20 @@ val CryptoWalletColors = WalletColors(
     onAction = Color.White,
     tile = Color(0x29FFFFFF),
     disabled = Color(0x1AFFFFFF),
+=======
+    card = Color(0xFF131313),
+    frosted = Color(0xD9131313),
+    frostedBorder = Color(0x14FFFFFF),
+    content = Color.White,
+    contentSecondary = Color(0x99FFFFFF),
+    contentTertiary = Color(0x66FFFFFF),
+    subtle = Color(0x14FFFFFF),
+    action = PayCeylonPrimary,
+    actionPressed = Color(0xFFB0073A),
+    onAction = Color.White,
+    tile = Color(0x1FFFFFFF),
+    disabled = Color(0x14FFFFFF),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onDisabled = Color(0x66FFFFFF),
     priceUp = Color(0xFF2FD15B),
     priceDown = Color(0xFFFF4D5E),

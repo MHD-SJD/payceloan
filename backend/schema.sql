@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 -- Requires PostgreSQL 13+ (gen_random_uuid() is built in).
+=======
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -8,10 +12,15 @@ CREATE TABLE IF NOT EXISTS users (
     handle TEXT NOT NULL UNIQUE,
     email TEXT,
     photo_url TEXT,
+<<<<<<< HEAD
+=======
+    photo_data TEXT,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS user_photos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -43,6 +52,8 @@ END $$;
 UPDATE users SET phone = 'demo:' || handle
 WHERE firebase_uid LIKE 'demo-peer:%' AND phone NOT LIKE 'demo:%';
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 CREATE TABLE IF NOT EXISTS wallet_balances (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     asset TEXT NOT NULL CHECK (asset IN ('LKR', 'USDT', 'BTC', 'ETH', 'SOL')),

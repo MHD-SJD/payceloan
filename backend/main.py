@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import asyncio
 import hashlib
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import json
 import logging
 import os
@@ -15,6 +18,7 @@ from uuid import UUID
 import asyncpg
 import firebase_admin
 from fastapi import Depends, FastAPI, File, Header, HTTPException, Query, Request, UploadFile
+<<<<<<< HEAD
 from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +27,15 @@ from firebase_admin import auth, credentials
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from starlette.exceptions import HTTPException as StarletteHTTPException
+=======
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import base64
+from firebase_admin import auth, credentials
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 ASSETS = ("LKR", "USDT", "BTC", "ETH", "SOL")
@@ -70,6 +83,7 @@ DEMO_PEERS = [
 ]
 
 
+<<<<<<< HEAD
 USER_COLUMNS = "id, firebase_uid, phone, name, handle, email, photo_url, photo_id"
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 IMAGE_SIGNATURES = {b"\xff\xd8\xff": "image/jpeg", b"\x89PNG\r\n\x1a\n": "image/png"}
@@ -77,15 +91,24 @@ IMAGE_SIGNATURES = {b"\xff\xd8\xff": "image/jpeg", b"\x89PNG\r\n\x1a\n": "image/
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=Path(__file__).parent / ".env", extra="ignore")
+=======
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     database_url: str = "postgresql://payceylon:payceylon@localhost:5432/payceylon"
     firebase_project_id: str = "demo-payceylon"
     firebase_service_account_json: str = ""
     firebase_auth_emulator_host: str = "127.0.0.1:9099"
+<<<<<<< HEAD
     # Development mode trusts the Auth emulator, which accepts unsigned tokens, so it must be opted into.
     app_env: str = "production"
     cors_origins: str = "http://10.0.2.2:8080,http://localhost:8080"
     # How long a withdrawal stays PENDING before the (simulated) bank confirms it.
     withdrawal_settle_seconds: int = 300
+=======
+    app_env: str = "development"
+    cors_origins: str = "http://10.0.2.2:8080,http://localhost:8080"
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 settings = Settings()
@@ -103,6 +126,7 @@ class VerifiedPhoneBody(Body):
     id_token: str = Field(alias="idToken", min_length=1)
 
 
+<<<<<<< HEAD
 def reject_null(value: Any) -> Any:
     if value is None:
         raise ValueError("This field cannot be null.")
@@ -117,6 +141,13 @@ class ProfilePatch(Body):
 
     _not_null = field_validator("name", "handle", mode="before")(reject_null)
 
+=======
+class ProfilePatch(Body):
+    name: str | None = Field(default=None, min_length=2, max_length=40)
+    handle: str | None = Field(default=None, min_length=3, max_length=20)
+    email: str | None = Field(default=None, max_length=254)
+
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     @field_validator("handle")
     @classmethod
     def valid_handle(cls, value: str | None) -> str | None:
@@ -134,9 +165,15 @@ class ProfilePatch(Body):
     @field_validator("email")
     @classmethod
     def valid_email(cls, value: str | None) -> str | None:
+<<<<<<< HEAD
         if value and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", value):
             raise ValueError("Enter a valid email address.")
         return value.lower() if value else None
+=======
+        if value is not None and value and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", value):
+            raise ValueError("Enter a valid email address.")
+        return value.lower() if value else value
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 class SettingsPatch(Body):
@@ -145,8 +182,11 @@ class SettingsPatch(Body):
     transaction_alerts: bool | None = Field(default=None, alias="transactionAlerts")
     promotions: bool | None = None
 
+<<<<<<< HEAD
     _not_null = field_validator("*", mode="before")(reject_null)
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 class PaymentBody(Body):
     to: str = Field(min_length=3, max_length=20)
@@ -218,6 +258,7 @@ def amount(value: str, asset: str) -> Decimal:
     return number
 
 
+<<<<<<< HEAD
 def money(value: Decimal | None, asset: str | None = None) -> str | None:
     """Formats with the asset's decimal places, keeping any extra precision (e.g. SOL network fees)."""
     if value is None:
@@ -257,6 +298,10 @@ def image_type(content: bytes) -> str | None:
 async def verify_token(token: str) -> dict[str, Any]:
     # firebase_admin is synchronous and may call Google's API; keep it off the event loop.
     return await run_in_threadpool(auth.verify_id_token, token, check_revoked=True)
+=======
+def money(value: Decimal | None) -> str | None:
+    return format(value, "f") if value is not None else None
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 async def current_user(
@@ -266,11 +311,19 @@ async def current_user(
         raise problem(401, "UNAUTHENTICATED", "Please sign in again.")
     token = authorization[7:].strip()
     try:
+<<<<<<< HEAD
         claims = await verify_token(token)
     except Exception:
         raise problem(401, "UNAUTHENTICATED", "Your sign-in has expired. Please sign in again.") from None
     user = await app.state.pool.fetchrow(
         f"SELECT {USER_COLUMNS} FROM users WHERE firebase_uid=$1",
+=======
+        claims = auth.verify_id_token(token, check_revoked=True)
+    except Exception:
+        raise problem(401, "UNAUTHENTICATED", "Your sign-in has expired. Please sign in again.") from None
+    user = await app.state.pool.fetchrow(
+        "SELECT id, firebase_uid, phone, name, handle, email, photo_url, photo_data FROM users WHERE firebase_uid=$1",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         claims["uid"],
     )
     if user is None:
@@ -281,6 +334,7 @@ async def current_user(
 User = Annotated[asyncpg.Record, Depends(current_user)]
 
 
+<<<<<<< HEAD
 def photo_url(request: Request, user: asyncpg.Record) -> str | None:
     if user["photo_id"]:
         return str(request.url_for("get_photo", photo_id=user["photo_id"]))
@@ -292,12 +346,19 @@ def public_user(request: Request, user: asyncpg.Record) -> dict[str, Any]:
 
 
 def profile(request: Request, user: asyncpg.Record) -> dict[str, Any]:
+=======
+async def profile(user: asyncpg.Record) -> dict[str, Any]:
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     return {
         "name": user["name"],
         "handle": user["handle"],
         "phone": user["phone"],
         "email": user["email"],
+<<<<<<< HEAD
         "photoUrl": photo_url(request, user),
+=======
+        "photoUrl": user["photo_url"] or user["photo_data"],
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     }
 
 
@@ -324,8 +385,13 @@ async def transaction_json(conn: asyncpg.Connection, tx: asyncpg.Record) -> dict
         "id": str(tx["id"]),
         "direction": tx["direction"],
         "currency": tx["currency"],
+<<<<<<< HEAD
         "amount": money(tx["amount"], tx["currency"]),
         "fee": money(tx["fee"], tx["fee_currency"]),
+=======
+        "amount": money(tx["amount"]),
+        "fee": money(tx["fee"]),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         "feeCurrency": tx["fee_currency"],
         "wallet": tx["wallet"],
         "timestamp": int(tx["created_at"].timestamp() * 1000),
@@ -333,7 +399,11 @@ async def transaction_json(conn: asyncpg.Connection, tx: asyncpg.Record) -> dict
         "reference": tx["reference"],
         "counterparty": {"name": tx["counterparty_name"], "handle": tx["counterparty_handle"]},
         "toCurrency": tx["to_currency"],
+<<<<<<< HEAD
         "toAmount": money(tx["to_amount"], tx["to_currency"]),
+=======
+        "toAmount": money(tx["to_amount"]),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         "txHash": tx["tx_hash"],
     }
 
@@ -406,19 +476,33 @@ async def create_user_from_firebase(claims: dict[str, Any]) -> asyncpg.Record:
     handle = "pc" + secrets.token_hex(5)
     async with app.state.pool.acquire() as conn, conn.transaction():
         user = await conn.fetchrow(
+<<<<<<< HEAD
             f"SELECT {USER_COLUMNS} FROM users WHERE phone=$1 OR firebase_uid=$2",
+=======
+            "SELECT id, firebase_uid, phone, name, handle, email, photo_url, photo_data FROM users WHERE phone=$1 OR firebase_uid=$2",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             phone, uid,
         )
         if user is not None:
             if user["firebase_uid"] != uid:
                 user = await conn.fetchrow(
+<<<<<<< HEAD
                     f"UPDATE users SET firebase_uid=$1, updated_at=now() WHERE id=$2 RETURNING {USER_COLUMNS}",
+=======
+                    """UPDATE users SET firebase_uid=$1, updated_at=now() WHERE id=$2
+                    RETURNING id, firebase_uid, phone, name, handle, email, photo_url, photo_data""",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     uid, user["id"],
                 )
             return user
 
         user = await conn.fetchrow(
+<<<<<<< HEAD
             f"INSERT INTO users(firebase_uid,phone,handle) VALUES($1,$2,$3) RETURNING {USER_COLUMNS}",
+=======
+            """INSERT INTO users(firebase_uid,phone,handle) VALUES($1,$2,$3)
+            RETURNING id, firebase_uid, phone, name, handle, email, photo_url, photo_data""",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             uid, phone, handle,
         )
         await conn.execute("INSERT INTO user_settings(user_id) VALUES($1) ON CONFLICT DO NOTHING", user["id"])
@@ -428,12 +512,20 @@ async def create_user_from_firebase(claims: dict[str, Any]) -> asyncpg.Record:
                 ON CONFLICT(user_id,asset) DO NOTHING""",
                 user["id"], asset, balance,
             )
+<<<<<<< HEAD
         for name, handle in DEMO_PEERS:
             # Not a phone number, so a real verified number can never match a demo peer.
             peer_id = await conn.fetchval(
                 """INSERT INTO users(firebase_uid,phone,name,handle)
                 VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING id""",
                 f"demo-peer:{handle}", f"demo:{handle}", name, handle,
+=======
+        for index, (name, handle) in enumerate(DEMO_PEERS):
+            peer_id = await conn.fetchval(
+                """INSERT INTO users(firebase_uid,phone,name,handle)
+                VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING id""",
+                f"demo-peer:{handle}", f"+94770{index:06d}", name, handle,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             )
             if peer_id:
                 for asset in ASSETS:
@@ -448,17 +540,24 @@ async def create_user_from_firebase(claims: dict[str, Any]) -> asyncpg.Record:
 async def lifespan(application: FastAPI):
     if settings.app_env == "development":
         os.environ.setdefault("FIREBASE_AUTH_EMULATOR_HOST", settings.firebase_auth_emulator_host)
+<<<<<<< HEAD
     elif os.environ.get("FIREBASE_AUTH_EMULATOR_HOST"):
         raise RuntimeError("FIREBASE_AUTH_EMULATOR_HOST is set but APP_ENV is not 'development'; refusing to trust emulator tokens.")
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     if not firebase_admin._apps:
         if settings.firebase_service_account_json:
             raw = settings.firebase_service_account_json.strip()
             if raw.startswith("{"):
                 account_info = json.loads(raw)
             else:
+<<<<<<< HEAD
                 # Relative paths are relative to this folder, not wherever uvicorn was started.
                 key_path = Path(raw) if Path(raw).is_absolute() else Path(__file__).parent / raw
                 account_info = json.loads(key_path.read_text(encoding="utf-8"))
+=======
+                account_info = json.loads(Path(raw).read_text(encoding="utf-8"))
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             firebase_admin.initialize_app(
                 credentials.Certificate(account_info),
                 {"projectId": settings.firebase_project_id},
@@ -470,6 +569,7 @@ async def lifespan(application: FastAPI):
     async with pool.acquire() as conn:
         await conn.execute(schema)
     application.state.pool = pool
+<<<<<<< HEAD
 
     async def settle_forever() -> None:
         # Runs even when nobody has the app open, so the notification is waiting for them.
@@ -510,6 +610,12 @@ async def settle_withdrawals(pool: asyncpg.Pool) -> int:
     return len(settled)
 
 
+=======
+    yield
+    await pool.close()
+
+
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 app = FastAPI(title="PayCeylon API", version="1.0.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
@@ -519,9 +625,14 @@ app.add_middleware(
 )
 
 
+<<<<<<< HEAD
 # Starlette's base class also covers router-level 404/405s, which FastAPI's subclass misses.
 @app.exception_handler(StarletteHTTPException)
 async def http_error_handler(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
+=======
+@app.exception_handler(HTTPException)
+async def http_error_handler(_request: Request, exc: HTTPException) -> JSONResponse:
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     if isinstance(exc.detail, dict):
         error = exc.detail
     else:
@@ -557,6 +668,7 @@ async def health() -> dict[str, str]:
 
 
 @app.post("/v1/auth/verify")
+<<<<<<< HEAD
 async def verify_phone(body: VerifyBody, request: Request) -> dict[str, Any]:
     try:
         claims = await verify_token(body.id_token)
@@ -578,12 +690,43 @@ async def update_me(body: ProfilePatch, user: User, request: Request) -> dict[st
         return profile(request, user)
     # Keys come from the model's fixed field names, never from the request.
     updates = ", ".join(f"{key}=${index + 2}" for index, key in enumerate(values))
+=======
+async def verify_phone(body: VerifyBody) -> dict[str, Any]:
+    try:
+        claims = auth.verify_id_token(body.id_token, check_revoked=True)
+    except Exception:
+        raise problem(401, "INVALID_OTP", "The phone verification has expired. Please request a new code.") from None
+    user = await create_user_from_firebase(claims)
+    return {"user": await profile(user)}
+
+
+@app.get("/v1/me")
+async def get_me(user: User) -> dict[str, Any]:
+    return await profile(user)
+
+
+@app.patch("/v1/me")
+async def update_me(body: ProfilePatch, user: User) -> dict[str, Any]:
+    values = body.model_dump(exclude_unset=True)
+    if not values:
+        return await profile(user)
+    if "handle" in values:
+        values["handle"] = values["handle"].lower()
+    fields = {"name": "name", "handle": "handle", "email": "email"}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     async with app.state.pool.acquire() as conn:
         try:
             async with conn.transaction():
                 updated = await conn.fetchrow(
+<<<<<<< HEAD
                     f"UPDATE users SET {updates}, updated_at=now() WHERE id=$1 RETURNING {USER_COLUMNS}",
                     user["id"], *values.values(),
+=======
+                    """UPDATE users SET name=COALESCE($2,name),handle=COALESCE($3,handle),
+                    email=COALESCE($4,email),updated_at=now() WHERE id=$1
+                    RETURNING id, firebase_uid, phone, name, handle, email, photo_url, photo_data""",
+                    user["id"], values.get(fields["name"]), values.get(fields["handle"]), values.get(fields["email"]),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 )
                 for key, value in values.items():
                     if value != user[key]:
@@ -591,6 +734,7 @@ async def update_me(body: ProfilePatch, user: User, request: Request) -> dict[st
                         await emit_notice(conn, user["id"], kind, f"{key.title()} updated", f"Your {key} was updated.")
         except asyncpg.UniqueViolationError:
             raise problem(409, "USERNAME_TAKEN", "That username is already in use.", "handle") from None
+<<<<<<< HEAD
     return profile(request, updated)
 
 
@@ -598,6 +742,15 @@ async def update_me(body: ProfilePatch, user: User, request: Request) -> dict[st
 async def update_phone(body: VerifiedPhoneBody, user: User, request: Request) -> dict[str, Any]:
     try:
         claims = await verify_token(body.id_token)
+=======
+    return await profile(updated)
+
+
+@app.patch("/v1/me/phone")
+async def update_phone(body: VerifiedPhoneBody, user: User) -> dict[str, Any]:
+    try:
+        claims = auth.verify_id_token(body.id_token, check_revoked=True)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     except Exception:
         raise problem(401, "INVALID_OTP", "Verify the new phone number and try again.") from None
     phone = claims.get("phone_number", "")
@@ -605,11 +758,17 @@ async def update_phone(body: VerifiedPhoneBody, user: User, request: Request) ->
         raise problem(400, "VALIDATION_FAILED", "The new phone number was not verified for this account.", "phone")
     try:
         updated = await app.state.pool.fetchrow(
+<<<<<<< HEAD
             f"UPDATE users SET phone=$2,updated_at=now() WHERE id=$1 RETURNING {USER_COLUMNS}",
+=======
+            """UPDATE users SET phone=$2,updated_at=now() WHERE id=$1
+            RETURNING id,firebase_uid,phone,name,handle,email,photo_url,photo_data""",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             user["id"], phone,
         )
     except asyncpg.UniqueViolationError:
         raise problem(409, "PHONE_TAKEN", "That phone number is already in use.", "phone") from None
+<<<<<<< HEAD
     return profile(request, updated)
 
 
@@ -656,11 +815,41 @@ async def get_photo(photo_id: UUID) -> Response:
     return Response(
         content=row["data"], media_type=row["content_type"],
         headers={"Cache-Control": "public, max-age=31536000, immutable"},
+=======
+    return await profile(updated)
+
+
+@app.put("/v1/me/photo")
+async def upload_photo(user: User, photo: UploadFile = File(...)) -> dict[str, Any]:
+    if photo.content_type not in {"image/jpeg", "image/png", "image/webp"}:
+        raise problem(400, "VALIDATION_FAILED", "Upload a JPEG, PNG, or WebP image.", "photo")
+    content = await photo.read(2 * 1024 * 1024 + 1)
+    if len(content) > 2 * 1024 * 1024:
+        raise problem(413, "PHOTO_TOO_LARGE", "Profile photos must be 2 MB or smaller.")
+    encoded = f"data:{photo.content_type};base64,{base64.b64encode(content).decode('ascii')}"
+    updated = await app.state.pool.fetchrow(
+        """UPDATE users SET photo_url=NULL,photo_data=$2,updated_at=now() WHERE id=$1
+        RETURNING id,firebase_uid,phone,name,handle,email,photo_url,photo_data""",
+        user["id"], encoded,
+    )
+    return await profile(updated)
+
+
+@app.delete("/v1/me/photo", status_code=204)
+async def remove_photo(user: User) -> None:
+    await app.state.pool.execute(
+        "UPDATE users SET photo_url=NULL,photo_data=NULL,updated_at=now() WHERE id=$1",
+        user["id"],
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     )
 
 
 @app.get("/v1/users/check-handle")
+<<<<<<< HEAD
 async def check_handle(_user: User, handle: str = Query(min_length=3, max_length=20)) -> dict[str, bool]:
+=======
+async def check_handle(handle: str = Query(min_length=3, max_length=20)) -> dict[str, bool]:
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     if not re.fullmatch(r"[a-z0-9._]{3,20}", handle.lower()):
         raise problem(400, "VALIDATION_FAILED", "Enter a valid username.", "handle")
     exists = await app.state.pool.fetchval("SELECT EXISTS(SELECT 1 FROM users WHERE handle=$1)", handle.lower())
@@ -697,6 +886,7 @@ async def patch_settings(body: SettingsPatch, user: User) -> dict[str, bool]:
 @app.get("/v1/wallet/balances")
 async def balances(user: User) -> dict[str, dict[str, str]]:
     rows = await app.state.pool.fetch("SELECT asset,balance FROM wallet_balances WHERE user_id=$1", user["id"])
+<<<<<<< HEAD
     return {"balances": {row["asset"]: money(row["balance"], row["asset"]) for row in rows}}
 
 
@@ -725,11 +915,20 @@ def demo_address(user_id: UUID, asset: str) -> str:
         "ETH": lambda: "0x" + digest.hex()[:40],
         "SOL": lambda: encode(BASE58, 44),
     }[asset]()
+=======
+    return {"balances": {row["asset"]: money(row["balance"]) for row in rows}}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 @app.get("/v1/wallet/addresses")
 async def addresses(user: User) -> dict[str, str]:
+<<<<<<< HEAD
     return {asset: demo_address(user["id"], asset) for asset in ("USDT", "BTC", "ETH", "SOL")}
+=======
+    # Deterministic demo addresses, not blockchain deposit accounts.
+    suffix = str(user["id"]).replace("-", "")[:12]
+    return {"USDT": f"DEMO-USDT-{suffix}", "BTC": f"DEMO-BTC-{suffix}", "ETH": f"DEMO-ETH-{suffix}", "SOL": f"DEMO-SOL-{suffix}"}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 @app.get("/v1/wallet/summary")
@@ -739,7 +938,11 @@ async def wallet_summary(asset: str, user: User) -> dict[str, Any]:
     value = await app.state.pool.fetchval(
         "SELECT balance FROM wallet_balances WHERE user_id=$1 AND asset=$2", user["id"], asset,
     )
+<<<<<<< HEAD
     return {"asset": asset, "balance": money(value or Decimal("0"), asset), "changePercent30d": None}
+=======
+    return {"asset": asset, "balance": money(value or Decimal("0")), "changePercent30d": None}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 @app.get("/v1/transactions")
@@ -751,6 +954,7 @@ async def transactions(
 ) -> dict[str, Any]:
     if wallet not in (None, "FIAT", "CRYPTO"):
         raise problem(400, "VALIDATION_FAILED", "Wallet must be FIAT or CRYPTO.", "wallet")
+<<<<<<< HEAD
     before, before_id = decode_cursor(cursor)
     # (created_at, id) keyset: rows written in one DB transaction share created_at.
     rows = await app.state.pool.fetch(
@@ -759,11 +963,29 @@ async def transactions(
         AND ($3::timestamptz IS NULL OR (created_at, id) < ($3, $4::uuid))
         ORDER BY created_at DESC, id DESC LIMIT $5""",
         user["id"], wallet, before, before_id, limit + 1,
+=======
+    before: datetime | None = None
+    if cursor:
+        try:
+            before = datetime.fromtimestamp(int(cursor) / 1000, tz=timezone.utc)
+        except (ValueError, OverflowError):
+            raise problem(400, "VALIDATION_FAILED", "Invalid transaction cursor.", "cursor") from None
+    rows = await app.state.pool.fetch(
+        """SELECT * FROM transactions WHERE user_id=$1
+        AND ($2::text IS NULL OR wallet=$2 OR (direction='SWAP' AND ($2='FIAT' AND (currency='LKR' OR to_currency='LKR') OR $2='CRYPTO' AND (currency<>'LKR' OR to_currency<>'LKR'))))
+        AND ($3::timestamptz IS NULL OR created_at<$3)
+        ORDER BY created_at DESC LIMIT $4""",
+        user["id"], wallet, before, limit + 1,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     )
     more = len(rows) > limit
     rows = rows[:limit]
     items = [await transaction_json(app.state.pool, row) for row in rows]
+<<<<<<< HEAD
     next_cursor = encode_cursor(rows[-1]) if more and rows else None
+=======
+    next_cursor = str(int(rows[-1]["created_at"].timestamp() * 1000)) if more and rows else None
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     return {"items": items, "nextCursor": next_cursor}
 
 
@@ -778,6 +1000,7 @@ async def get_transaction(transaction_id: UUID, user: User) -> dict[str, Any]:
 
 
 @app.get("/v1/users/search")
+<<<<<<< HEAD
 async def search_users(
     _user: User,
     request: Request,
@@ -807,6 +1030,28 @@ async def get_user(handle: str, _user: User, request: Request) -> dict[str, Any]
     if row is None:
         raise problem(404, "USER_NOT_FOUND", "That PayCeylon user could not be found.")
     return public_user(request, row)
+=======
+async def search_users(q: str = "", limit: int = Query(default=5, ge=1, le=20)) -> dict[str, list[dict[str, str | None]]]:
+    query = q.strip().removeprefix("@").lower()
+    if not query:
+        return {"items": []}
+    rows = await app.state.pool.fetch(
+        """SELECT name,handle,photo_url,
+        CASE WHEN handle LIKE $1 THEN 0 WHEN lower(name) LIKE $1 THEN 1 ELSE 2 END AS rank
+        FROM users WHERE lower(handle) LIKE $2 OR lower(name) LIKE $2
+        ORDER BY rank,handle LIMIT $3""",
+        query + "%", "%" + query + "%", limit,
+    )
+    return {"items": [{"name": row["name"], "handle": row["handle"], "photoUrl": row["photo_url"]} for row in rows]}
+
+
+@app.get("/v1/users/{handle}")
+async def get_user(handle: str) -> dict[str, Any]:
+    row = await app.state.pool.fetchrow("SELECT name,handle,photo_url FROM users WHERE lower(handle)=lower($1)", handle.removeprefix("@"))
+    if row is None:
+        raise problem(404, "USER_NOT_FOUND", "That PayCeylon user could not be found.")
+    return {"name": row["name"], "handle": row["handle"], "photoUrl": row["photo_url"]}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 @app.post("/v1/payments", status_code=201)
@@ -830,6 +1075,7 @@ async def send_payment(
         if recipient["id"] == user["id"]:
             raise problem(400, "VALIDATION_FAILED", "You cannot send money to yourself.", "to")
         fee = NETWORK_FEES.get(asset)
+<<<<<<< HEAD
         await conn.execute(
             "INSERT INTO wallet_balances(user_id,asset,balance) VALUES($1,$2,0) ON CONFLICT DO NOTHING",
             recipient["id"], asset,
@@ -841,6 +1087,12 @@ async def send_payment(
             asset, [user["id"], recipient["id"]],
         )
         sender_balance = next((row["balance"] for row in locked if row["user_id"] == user["id"]), None)
+=======
+        sender_balance = await conn.fetchval(
+            "SELECT balance FROM wallet_balances WHERE user_id=$1 AND asset=$2 FOR UPDATE",
+            user["id"], asset,
+        )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         if sender_balance is None or sender_balance < value + (fee or 0):
             raise problem(402, "INSUFFICIENT_FUNDS", f"Insufficient {asset} balance.")
         await conn.execute(
@@ -848,7 +1100,12 @@ async def send_payment(
             user["id"], asset, value + (fee or 0),
         )
         await conn.execute(
+<<<<<<< HEAD
             "UPDATE wallet_balances SET balance=balance+$3 WHERE user_id=$1 AND asset=$2",
+=======
+            """INSERT INTO wallet_balances(user_id,asset,balance) VALUES($1,$2,$3)
+            ON CONFLICT(user_id,asset) DO UPDATE SET balance=wallet_balances.balance+EXCLUDED.balance""",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             recipient["id"], asset, value,
         )
         sent = await add_transaction(
@@ -871,7 +1128,11 @@ async def send_payment(
 async def rates() -> dict[str, Any]:
     return {
         "base": "LKR",
+<<<<<<< HEAD
         "prices": {asset: money(price, "LKR") for asset, price in PRICES_LKR.items()},
+=======
+        "prices": {asset: money(price) for asset, price in PRICES_LKR.items()},
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         "feeRate": "0.005",
     }
 
@@ -885,10 +1146,14 @@ async def quote_swap(body: SwapQuoteBody, user: User) -> dict[str, Any]:
     quantum = Decimal(1).scaleb(-DECIMALS[source])
     fee = (value * Decimal("0.005")).quantize(quantum, rounding=ROUND_UP)
     rate = PRICES_LKR[source] / PRICES_LKR[target]
+<<<<<<< HEAD
     # Multiply before dividing: a pre-rounded rate (1/300 = 0.00333…) would round receive down a unit.
     receive = ((value - fee) * PRICES_LKR[source] / PRICES_LKR[target]).quantize(
         Decimal(1).scaleb(-DECIMALS[target]), rounding=ROUND_DOWN,
     )
+=======
+    receive = ((value - fee) * rate).quantize(Decimal(1).scaleb(-DECIMALS[target]), rounding=ROUND_DOWN)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     if receive <= 0:
         raise problem(400, "VALIDATION_FAILED", "The swap amount is too small.")
     expires = datetime.now(timezone.utc) + timedelta(seconds=60)
@@ -898,8 +1163,13 @@ async def quote_swap(body: SwapQuoteBody, user: User) -> dict[str, Any]:
         user["id"], source, target, value, fee, receive, rate, expires,
     )
     return {
+<<<<<<< HEAD
         "quoteId": str(quote_id), "from": source, "to": target, "amount": money(value, source),
         "fee": money(fee, source), "receive": money(receive, target), "rate": money(rate),
+=======
+        "quoteId": str(quote_id), "from": source, "to": target, "amount": money(value),
+        "fee": money(fee), "receive": money(receive), "rate": money(rate),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         "expiresAt": int(expires.timestamp() * 1000),
     }
 
@@ -1004,6 +1274,7 @@ async def add_bank(body: BankBody, user: User) -> dict[str, Any]:
 
 @app.delete("/v1/payment-methods/{method_id}", status_code=204)
 async def delete_payment_method(method_id: UUID, user: User) -> None:
+<<<<<<< HEAD
     async with app.state.pool.acquire() as conn, conn.transaction():
         removed = await conn.fetchrow(
             "DELETE FROM payment_methods WHERE id=$1 AND user_id=$2 RETURNING type,name,last4",
@@ -1016,6 +1287,13 @@ async def delete_payment_method(method_id: UUID, user: User) -> None:
             conn, user["id"], "SECURITY", f"{kind} removed",
             f"{removed['name']} •••• {removed['last4'].strip()} is no longer linked.",
         )
+=======
+    result = await app.state.pool.execute(
+        "DELETE FROM payment_methods WHERE id=$1 AND user_id=$2", method_id, user["id"],
+    )
+    if result.endswith("0"):
+        raise problem(404, "PAYMENT_METHOD_NOT_FOUND", "Payment method not found.")
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 
 @app.post("/v1/topups", status_code=201)
@@ -1079,6 +1357,7 @@ async def withdraw(
             "UPDATE wallet_balances SET balance=balance-$2 WHERE user_id=$1 AND asset='LKR'",
             user["id"], value + fee,
         )
+<<<<<<< HEAD
         # Starts PENDING like a bank transfer; settle_withdrawals() completes it later.
         tx = await add_transaction(
             conn, user_id=user["id"], direction="WITHDRAWAL", currency="LKR", value=value,
@@ -1089,6 +1368,14 @@ async def withdraw(
             conn, user["id"], "TRANSACTION", "Withdrawal on its way",
             f"LKR {money(value, 'LKR')} to {method['name']}. Arrives in about {settle_minutes()}.", tx["id"],
         )
+=======
+        tx = await add_transaction(
+            conn, user_id=user["id"], direction="WITHDRAWAL", currency="LKR", value=value,
+            wallet="FIAT", name=method["name"], handle=f"•••• {method['last4'].strip()}",
+            fee=fee, fee_currency="LKR", status="COMPLETED",
+        )
+        await emit_notice(conn, user["id"], "TRANSACTION", "Demo withdrawal complete", f"LKR {value} sent to {method['name']}. No real transfer was made.", tx["id"])
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         result = await transaction_json(conn, tx)
         await save_response(conn, user["id"], "withdrawal", idempotency_key or "", result)
     return result
@@ -1100,12 +1387,26 @@ async def list_notifications(
     cursor: str | None = None,
     limit: int = Query(default=50, ge=1, le=100),
 ) -> dict[str, Any]:
+<<<<<<< HEAD
     before, before_id = decode_cursor(cursor)
     rows = await app.state.pool.fetch(
         """SELECT id,kind,title,body,transaction_id,read,created_at FROM notifications
         WHERE user_id=$1 AND ($2::timestamptz IS NULL OR (created_at, id) < ($2, $3::uuid))
         ORDER BY created_at DESC, id DESC LIMIT $4""",
         user["id"], before, before_id, limit + 1,
+=======
+    before: datetime | None = None
+    if cursor:
+        try:
+            before = datetime.fromtimestamp(int(cursor) / 1000, tz=timezone.utc)
+        except (ValueError, OverflowError):
+            raise problem(400, "VALIDATION_FAILED", "Invalid notification cursor.", "cursor") from None
+    rows = await app.state.pool.fetch(
+        """SELECT id,kind,title,body,transaction_id,read,created_at FROM notifications
+        WHERE user_id=$1 AND ($2::timestamptz IS NULL OR created_at<$2)
+        ORDER BY created_at DESC LIMIT $3""",
+        user["id"], before, limit + 1,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     )
     unread = await app.state.pool.fetchval(
         "SELECT count(*) FROM notifications WHERE user_id=$1 AND read=false", user["id"],
@@ -1118,7 +1419,11 @@ async def list_notifications(
         "transactionId": str(row["transaction_id"]) if row["transaction_id"] else None,
         "read": row["read"],
     } for row in rows]
+<<<<<<< HEAD
     next_cursor = encode_cursor(rows[-1]) if more and rows else None
+=======
+    next_cursor = str(int(rows[-1]["created_at"].timestamp() * 1000)) if more and rows else None
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     return {"items": items, "nextCursor": next_cursor, "unreadCount": unread}
 
 
@@ -1145,7 +1450,11 @@ async def register_device(body: DeviceBody, user: User) -> None:
 @app.delete("/v1/auth/logout", status_code=204)
 async def logout(user: User) -> None:
     try:
+<<<<<<< HEAD
         # revoke_refresh_tokens is synchronous; awaiting its None result made every logout a 503.
         await run_in_threadpool(auth.revoke_refresh_tokens, user["firebase_uid"])
+=======
+        await auth.revoke_refresh_tokens(user["firebase_uid"])
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     except Exception:
         raise problem(503, "AUTH_PROVIDER_UNAVAILABLE", "Could not sign out. Please try again.") from None

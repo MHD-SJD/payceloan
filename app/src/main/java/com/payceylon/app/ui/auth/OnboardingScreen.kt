@@ -2,10 +2,13 @@ package com.payceylon.app.ui.auth
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
+<<<<<<< HEAD
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -28,10 +31,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+<<<<<<< HEAD
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+=======
+import androidx.compose.foundation.layout.aspectRatio
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,9 +49,13 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+<<<<<<< HEAD
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
+=======
+import androidx.compose.foundation.text.BasicTextField
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +74,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+<<<<<<< HEAD
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalDensity
@@ -70,6 +82,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+=======
+import androidx.compose.ui.platform.LocalDensity
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -138,8 +153,11 @@ fun OnboardingScreen(
     onPageChange: (Int) -> Unit,
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
+<<<<<<< HEAD
     /** True while the SMS code is being requested. */
     isSendingCode: Boolean = false,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 ) {
     var displayedPage by remember { mutableIntStateOf(currentPage.coerceIn(onboardingPages.indices)) }
     var transitionDirection by remember { mutableIntStateOf(1) }
@@ -162,6 +180,7 @@ fun OnboardingScreen(
         }
     }
 
+<<<<<<< HEAD
     // While the keyboard is up (phone entry) the illustration folds away so the field stays visible,
     // and the background rises with the content so its red top doesn't run into the title.
     // The IME inset animates with the keyboard, so both follow it frame by frame.
@@ -169,6 +188,8 @@ fun OnboardingScreen(
     val isKeyboardOpen = keyboardHeight > 0
     val isPhonePage = displayedPage == onboardingPages.lastIndex
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val draggableState = rememberDraggableState { delta ->
         val isPastStart = displayedPage == 0 && dragOffset + delta > 0f
         val isPastEnd = displayedPage == onboardingPages.lastIndex && dragOffset + delta < 0f
@@ -176,36 +197,53 @@ fun OnboardingScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
+<<<<<<< HEAD
         AnimatedOnboardingBackground(
             pageIndex = displayedPage,
             liftPx = if (isPhonePage) keyboardHeight.toFloat() else 0f,
         )
+=======
+        AnimatedOnboardingBackground(pageIndex = displayedPage)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+<<<<<<< HEAD
                 .imePadding()
                 .padding(horizontal = 24.dp),
         ) {
             Spacer(Modifier.height(20.dp))
             // The red background has moved up out of the way, so the bars switch to ink.
             ProgressIndicator(currentPage = displayedPage, onLight = isPhonePage && isKeyboardOpen)
+=======
+                .padding(horizontal = 24.dp),
+        ) {
+            Spacer(Modifier.height(20.dp))
+            ProgressIndicator(currentPage = displayedPage)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
             OnboardingCenterContent(
                 pageIndex = displayedPage,
                 transitionDirection = transitionDirection,
                 dragOffset = dragOffset,
+<<<<<<< HEAD
                 showIllustration = !(isPhonePage && isKeyboardOpen),
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .draggable(
                         state = draggableState,
                         orientation = Orientation.Horizontal,
+<<<<<<< HEAD
                         // The last page holds the phone field; swiping there only got in the way.
                         enabled = !isPhonePage,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         onDragStopped = { velocity ->
                             val projectedOffset = dragOffset + velocity * 0.12f
                             when {
@@ -238,7 +276,10 @@ fun OnboardingScreen(
                         value = phoneNumber,
                         onValueChange = onPhoneNumberChange,
                         onContinue = onFinished,
+<<<<<<< HEAD
                         isSendingCode = isSendingCode,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     )
                 } else {
                     StandardOnboardingControls(
@@ -253,7 +294,11 @@ fun OnboardingScreen(
 }
 
 @Composable
+<<<<<<< HEAD
 private fun AnimatedOnboardingBackground(pageIndex: Int, liftPx: Float = 0f) {
+=======
+private fun AnimatedOnboardingBackground(pageIndex: Int) {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     var activePage by remember { mutableIntStateOf(pageIndex) }
     var previousPage by remember { mutableStateOf<Int?>(null) }
     val progress = remember { Animatable(1f) }
@@ -271,8 +316,12 @@ private fun AnimatedOnboardingBackground(pageIndex: Int, liftPx: Float = 0f) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+<<<<<<< HEAD
             .background(Color.White)
             .graphicsLayer { translationY = -liftPx },
+=======
+            .background(Color.White),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     ) {
         val previous = previousPage
         if (previous == null) {
@@ -325,7 +374,10 @@ private fun OnboardingCenterContent(
     pageIndex: Int,
     transitionDirection: Int,
     dragOffset: Float,
+<<<<<<< HEAD
     showIllustration: Boolean,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -336,6 +388,7 @@ private fun OnboardingCenterContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start,
     ) {
+<<<<<<< HEAD
         AnimatedVisibility(
             visible = showIllustration,
             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -357,6 +410,23 @@ private fun OnboardingCenterContent(
                     contentScale = ContentScale.Fit,
                 )
             }
+=======
+        KeyedRevealElement(
+            pageIndex = pageIndex,
+            transitionDirection = transitionDirection,
+            delayMillis = 0,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        ) { page ->
+            Image(
+                painter = painterResource(onboardingPages[page].illustration),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 320.dp)
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Fit,
+            )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         }
         Spacer(Modifier.height(4.dp))
         KeyedRevealElement(
@@ -426,10 +496,16 @@ private fun KeyedRevealElement(
 }
 
 @Composable
+<<<<<<< HEAD
 private fun ProgressIndicator(currentPage: Int, onLight: Boolean) {
     var animateProgress by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { animateProgress = true }
     val barColor by animateColorAsState(if (onLight) Ink else Color.White, tween(220), label = "progress bar color")
+=======
+private fun ProgressIndicator(currentPage: Int) {
+    var animateProgress by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { animateProgress = true }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -446,13 +522,21 @@ private fun ProgressIndicator(currentPage: Int, onLight: Boolean) {
                     .weight(1f)
                     .height(4.dp)
                     .clip(RoundedCornerShape(99.dp))
+<<<<<<< HEAD
                     .background(barColor.copy(alpha = if (onLight) 0.12f else 0.28f)),
+=======
+                    .background(Color.White.copy(alpha = 0.28f)),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(progress)
                         .height(4.dp)
+<<<<<<< HEAD
                         .background(barColor, RoundedCornerShape(99.dp)),
+=======
+                        .background(Color.White, RoundedCornerShape(99.dp)),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 )
             }
         }
@@ -478,7 +562,10 @@ private fun PhoneEntryControls(
     value: String,
     onValueChange: (String) -> Unit,
     onContinue: () -> Unit,
+<<<<<<< HEAD
     isSendingCode: Boolean,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 ) {
     val isValid = validateSriLankanMobileNumber(value) == PhoneNumberValidation.Valid
 
@@ -486,6 +573,7 @@ private fun PhoneEntryControls(
         PhoneNumberField(
             value = value,
             onValueChange = onValueChange,
+<<<<<<< HEAD
             onDone = { if (isValid && !isSendingCode) onContinue() },
         )
         Spacer(Modifier.height(14.dp))
@@ -494,6 +582,15 @@ private fun PhoneEntryControls(
             onClick = onContinue,
             style = PayCeylonButtonStyle.Accent,
             enabled = isValid && !isSendingCode,
+=======
+        )
+        Spacer(Modifier.height(14.dp))
+        PayCeylonButton(
+            label = "Get Started",
+            onClick = onContinue,
+            style = PayCeylonButtonStyle.Accent,
+            enabled = isValid,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         )
         Spacer(Modifier.height(16.dp))
         Text(
@@ -512,6 +609,7 @@ private fun PhoneEntryControls(
 private fun PhoneNumberField(
     value: String,
     onValueChange: (String) -> Unit,
+<<<<<<< HEAD
     onDone: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -530,18 +628,28 @@ private fun PhoneNumberField(
                 newValue.copy(text = digits, selection = TextRange(newValue.selection.end.coerceAtMost(digits.length)))
             }
             onValueChange(digits)
+=======
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = { newValue ->
+            onValueChange(normalizeSriLankanMobileNumber(newValue))
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         },
         modifier = Modifier
             .fillMaxWidth()
             .height(62.dp)
             .clip(RoundedCornerShape(32.dp))
             .background(SoftGrey)
+<<<<<<< HEAD
             // Taps on the flag or +94 focus the field too, not just taps on the digits.
             .clickable(interactionSource = null, indication = null) {
                 focusRequester.requestFocus()
                 keyboard?.show()
             }
             .focusRequester(focusRequester)
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             .padding(horizontal = 20.dp),
         textStyle = TextStyle(
             color = Ink,
@@ -552,8 +660,12 @@ private fun PhoneNumberField(
         singleLine = true,
         visualTransformation = SriLankanPhoneVisualTransformation,
         cursorBrush = SolidColor(PayCeylonRed),
+<<<<<<< HEAD
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { onDone() }),
+=======
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier.fillMaxSize(),

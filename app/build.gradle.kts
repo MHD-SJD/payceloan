@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import java.net.URI
 import java.util.Properties
 
@@ -35,6 +36,13 @@ val defaultEmulatorHost: String = configuredHost ?: run {
 fun localSetting(key: String, default: String = ""): String =
     "\"" + (localProperties.getProperty(key) ?: default).replace("\"", "\\\"") + "\""
 
+=======
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+}
+
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 android {
     namespace = "com.payceylon.app"
     compileSdk {
@@ -49,6 +57,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+<<<<<<< HEAD
 
         buildConfigField("String", "API_BASE_URL", localSetting("payceylon.apiBaseUrl", defaultApiUrl))
         buildConfigField("String", "FIREBASE_API_KEY", localSetting("payceylon.firebase.apiKey", "demo-api-key"))
@@ -66,6 +75,12 @@ android {
         }
         release {
             manifestPlaceholders["usesCleartextTraffic"] = "false"
+=======
+    }
+
+    buildTypes {
+        release {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             optimization {
                 enable = false
             }
@@ -101,6 +116,7 @@ dependencies {
     implementation(libs.haze)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+<<<<<<< HEAD
     implementation(libs.okhttp)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.room.runtime)
@@ -110,6 +126,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+=======
+    implementation(libs.kotlinx.coroutines.play.services)
+    testImplementation(libs.junit)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

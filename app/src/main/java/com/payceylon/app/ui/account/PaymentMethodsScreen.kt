@@ -26,14 +26,26 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+=======
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
+=======
+import androidx.compose.ui.platform.LocalContext
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
@@ -54,18 +66,46 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.payceylon.app.R
+<<<<<<< HEAD
+=======
+import com.payceylon.app.data.BackendApi
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.auth.PayCeylonButton
 import com.payceylon.app.ui.auth.PayCeylonButtonStyle
 import com.payceylon.app.ui.components.PayCeylonDropdownMenu
 import com.payceylon.app.ui.components.PayCeylonEasing
 import com.payceylon.app.ui.components.PayCeylonTextField
+<<<<<<< HEAD
 import com.payceylon.app.ui.components.rememberSubmitState
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.components.tap
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.LocalWalletColors
 import com.payceylon.app.ui.theme.PayCeylonPrimary
 import com.payceylon.app.ui.wallet.MethodBadge
 import com.payceylon.app.ui.wallet.PageHeader
+<<<<<<< HEAD
+=======
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.util.UUID
+
+private suspend fun findRemoteMethodId(method: PaymentMethod): String {
+    val items = BackendApi.get("/payment-methods").getJSONArray("items")
+    for (index in 0 until items.length()) {
+        val item = items.getJSONObject(index)
+        if (
+            item.optString("type").equals(method.type.name, ignoreCase = true) &&
+            item.optString("name").equals(method.name, ignoreCase = true) &&
+            item.optString("last4") == method.last4
+        ) {
+            return item.getString("id")
+        }
+    }
+    error("This payment method is no longer linked.")
+}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 @Composable
 fun PaymentMethodsScreen(
@@ -76,8 +116,39 @@ fun PaymentMethodsScreen(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     val submit = rememberSubmitState()
     var pendingRemoval by remember { mutableStateOf<PaymentMethod?>(null) }
+=======
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var pendingRemoval by remember { mutableStateOf<PaymentMethod?>(null) }
+    var removing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(account) {
+        runCatching {
+            val items = BackendApi.get("/payment-methods").getJSONArray("items")
+            val methods = (0 until items.length()).map { index ->
+                val item = items.getJSONObject(index)
+                val type = if (item.optString("type").equals("CARD", true)) PaymentMethodType.Card else PaymentMethodType.Bank
+                val brandName = item.optString("brand").takeUnless { it == "null" || it.isBlank() }
+                PaymentMethod(
+                    id = index + 1L,
+                    type = type,
+                    name = item.optString("name"),
+                    last4 = item.optString("last4"),
+                    holder = item.optString("holder"),
+                    detail = item.optString("detail"),
+                    brand = brandName?.let { label -> CardBrand.entries.firstOrNull { it.label.equals(label, true) } },
+                    remoteId = item.optString("id"),
+                )
+            }
+            account.replacePaymentMethods(methods)
+        }.onFailure {
+            Toast.makeText(context, it.message ?: "Could not load payment methods.", Toast.LENGTH_LONG).show()
+        }
+    }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     Column(
         modifier = modifier
@@ -157,10 +228,30 @@ fun PaymentMethodsScreen(
             },
             confirmButton = {
                 TextButton(onClick = {
+<<<<<<< HEAD
                     pendingRemoval = null
                     submit.run { account.removePaymentMethod(method.id) }
                 }) {
                     Text("Remove", color = PayCeylonPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+=======
+                    if (!removing) {
+                        removing = true
+                        scope.launch {
+                            try {
+                                val remoteId = method.remoteId ?: findRemoteMethodId(method)
+                                BackendApi.delete("/payment-methods/$remoteId")
+                                account.removePaymentMethod(method.id)
+                                pendingRemoval = null
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "Could not remove this payment method.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                removing = false
+                            }
+                        }
+                    }
+                }) {
+                    Text(if (removing) "Removing…" else "Remove", color = PayCeylonPrimary, fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 }
             },
             dismissButton = {
@@ -214,7 +305,10 @@ fun AddCardScreen(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     val submit = rememberSubmitState()
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val context = LocalContext.current
     // Card details live only in this screen's state; only brand, last four and expiry are saved.
     var number by remember { mutableStateOf("") }
@@ -222,6 +316,11 @@ fun AddCardScreen(
     var cvv by remember { mutableStateOf("") }
     var holder by rememberSaveable { mutableStateOf(account.profile.name) }
     var showErrors by remember { mutableStateOf(false) }
+<<<<<<< HEAD
+=======
+    var adding by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     val brand = CardBrand.detect(number)
     val maxDigits = brand?.lengths?.last ?: 16
@@ -301,6 +400,7 @@ fun AddCardScreen(
         PayCeylonButton(
             label = "Add card",
             onClick = {
+<<<<<<< HEAD
                 if (listOf(numberError, expiryError, cvvError, holderError).any { it != null }) {
                     showErrors = true
                 } else {
@@ -312,6 +412,41 @@ fun AddCardScreen(
                 }
             },
             enabled = number.isNotEmpty() && expiry.isNotEmpty() && cvv.isNotEmpty() && holder.isNotBlank() && !submit.busy,
+=======
+                if (!adding) {
+                    if (listOf(numberError, expiryError, cvvError, holderError).any { it != null }) {
+                        showErrors = true
+                    } else {
+                        adding = true
+                        scope.launch {
+                            try {
+                                val detectedBrand = brand ?: error("Choose a supported card.")
+                                val expiryValue = "${expiry.take(2)}/${expiry.drop(2)}"
+                                val response = BackendApi.post(
+                                    "/payment-methods/cards",
+                                    JSONObject()
+                                        .put("token", "demo_tok_${UUID.randomUUID()}")
+                                        .put("brand", detectedBrand.label)
+                                        .put("last4", number.filter(Char::isDigit).takeLast(4))
+                                        .put("expiry", expiryValue)
+                                        .put("holder", holder.trim()),
+                                )
+                                val local = account.addCard(number, expiry, holder)
+                                account.attachRemotePaymentMethod(local.id, response.getString("id"))
+                                val method = local.copy(remoteId = response.getString("id"))
+                                Toast.makeText(context, "${method.title} added", Toast.LENGTH_SHORT).show()
+                                onAdded(method)
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "Could not add this card.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                adding = false
+                            }
+                        }
+                    }
+                }
+            },
+            enabled = number.isNotEmpty() && expiry.isNotEmpty() && cvv.isNotEmpty() && holder.isNotBlank() && !adding,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             style = PayCeylonButtonStyle.Accent,
         )
     }
@@ -430,7 +565,10 @@ fun AddBankScreen(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     val submit = rememberSubmitState()
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val context = LocalContext.current
     var bank by rememberSaveable { mutableStateOf<String?>(null) }
     var holder by rememberSaveable { mutableStateOf(account.profile.name) }
@@ -438,6 +576,11 @@ fun AddBankScreen(
     var typeIndex by rememberSaveable { mutableIntStateOf(0) }
     var showErrors by remember { mutableStateOf(false) }
     var isBankMenuOpen by remember { mutableStateOf(false) }
+<<<<<<< HEAD
+=======
+    var adding by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     val numberError = accountNumberError(number)
     val holderError = holderNameError(holder)
@@ -542,6 +685,7 @@ fun AddBankScreen(
             label = "Link bank account",
             onClick = {
                 val chosen = bank
+<<<<<<< HEAD
                 if (chosen == null || numberError != null || holderError != null) {
                     showErrors = true
                 } else {
@@ -553,6 +697,38 @@ fun AddBankScreen(
                 }
             },
             enabled = number.isNotEmpty() && holder.isNotBlank() && !submit.busy,
+=======
+                if (!adding) {
+                    if (chosen == null || numberError != null || holderError != null) {
+                        showErrors = true
+                    } else {
+                        adding = true
+                        scope.launch {
+                            try {
+                                val response = BackendApi.post(
+                                    "/payment-methods/banks",
+                                    JSONObject()
+                                        .put("bank", chosen)
+                                        .put("accountNumber", number.filter(Char::isDigit))
+                                        .put("holder", holder.trim())
+                                        .put("accountType", if (typeIndex == 0) "SAVINGS" else "CURRENT"),
+                                )
+                                val local = account.addBank(chosen, number, holder, isSavings = typeIndex == 0)
+                                account.attachRemotePaymentMethod(local.id, response.getString("id"))
+                                val method = local.copy(remoteId = response.getString("id"))
+                                Toast.makeText(context, "${method.title} linked", Toast.LENGTH_SHORT).show()
+                                onAdded(method)
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "Could not link this bank account.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                adding = false
+                            }
+                        }
+                    }
+                }
+            },
+            enabled = number.isNotEmpty() && holder.isNotBlank() && !adding,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             style = PayCeylonButtonStyle.Accent,
         )
     }

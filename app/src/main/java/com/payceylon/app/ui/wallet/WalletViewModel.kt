@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+<<<<<<< HEAD
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,12 +23,36 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+=======
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.payceylon.app.R
+import com.payceylon.app.data.BackendApi
+import com.payceylon.app.ui.account.AccountState
+import com.payceylon.app.ui.account.AppNotification
+import com.payceylon.app.ui.account.NotificationKind
+import com.payceylon.app.ui.account.PaymentMethod
+import com.payceylon.app.ui.account.PaymentMethodType
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
+<<<<<<< HEAD
+=======
+import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 enum class WalletType(val label: String, val transactionLabel: String) {
     Fiat(label = "Fiat Wallet", transactionLabel = "Fiat"),
@@ -98,17 +123,70 @@ enum class Asset(val code: String, val displayName: String, val token: CryptoTok
 /** Shortens an address to its first and last characters, e.g. "TQn9Y2…KcbLSE". */
 fun CryptoToken.shortAddress(): String = "${address.take(6)}\u2026${address.takeLast(6)}"
 
+<<<<<<< HEAD
 /** Same, for any address string (e.g. the per-user address from the server). */
 fun shortAddress(address: String): String = "${address.take(6)}…${address.takeLast(6)}"
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 data class PayCeylonUser(val name: String, val handle: String) {
     val initials: String
         get() = name.split(' ').filter { it.isNotBlank() }.take(2)
             .joinToString("") { it.first().uppercase() }
 }
 
+<<<<<<< HEAD
 data class WalletTransaction(
     val id: String,
+=======
+/** Registered PayCeylon users the prototype can send to. Replace with a remote user search. */
+val PayCeylonDirectory = listOf(
+    PayCeylonUser("Sajjad Ahamed", "sajjad67"),
+    PayCeylonUser("Janidu Perera", "janidup"),
+    PayCeylonUser("Ruveen Jayasinghe", "ruveenobject"),
+    PayCeylonUser("Anuka Fernando", "anuka67"),
+    PayCeylonUser("Dialog Axiata", "dialoglk"),
+    PayCeylonUser("Kavindi Perera", "kavindi.p"),
+    PayCeylonUser("Tharindu Silva", "tharindu_s"),
+    PayCeylonUser("Nimesha Rathnayake", "nimesha99"),
+    PayCeylonUser("Dulanjaya Wickramasinghe", "dulanjaya"),
+    PayCeylonUser("Sachini Weerasekara", "sachini.w"),
+    PayCeylonUser("Pasan Gunawardena", "pasan.lk"),
+    PayCeylonUser("Hiruni Madushani", "hiruni_m"),
+    PayCeylonUser("Keells Super", "keells"),
+    PayCeylonUser("PickMe", "pickme.lk"),
+)
+
+/**
+ * Matches users whose handle or name contains [query] (ignoring a leading "@"), ranking
+ * handle prefixes first, then name prefixes, then other matches.
+ */
+fun searchPayCeylonUsers(query: String, limit: Int = 5): List<PayCeylonUser> {
+    val q = query.trim().removePrefix("@").lowercase()
+    if (q.isEmpty()) return emptyList()
+    return PayCeylonDirectory
+        .mapNotNull { user ->
+            val handle = user.handle.lowercase()
+            val name = user.name.lowercase()
+            val rank = when {
+                handle.startsWith(q) -> 0
+                name.split(' ').any { it.startsWith(q) } -> 1
+                q in handle || q in name -> 2
+                else -> return@mapNotNull null
+            }
+            rank to user
+        }
+        .sortedWith(compareBy({ it.first }, { it.second.handle }))
+        .take(limit)
+        .map { it.second }
+}
+
+fun findPayCeylonUser(handle: String): PayCeylonUser? =
+    PayCeylonDirectory.firstOrNull { it.handle.equals(handle.removePrefix("@"), ignoreCase = true) }
+
+data class WalletTransaction(
+    val id: Long,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val counterpartyName: String,
     val counterpartyHandle: String,
     val direction: TransactionDirection,
@@ -124,12 +202,16 @@ data class WalletTransaction(
     /** Fee charged on top of [amount], in [feeCurrency]: card top-up, bank payout or network fee. */
     val fee: BigDecimal? = null,
     val feeCurrency: String? = null,
+<<<<<<< HEAD
     /** PayCeylon reference shown to support, e.g. "PC-4F2A9C01DE". */
     val reference: String = "",
     /** PENDING, COMPLETED or FAILED. */
     val status: String = "COMPLETED",
     /** On-chain hash for crypto transfers that left PayCeylon; null otherwise. */
     val txHash: String? = null,
+=======
+    val remoteId: String? = null,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 ) {
     val title: String
         get() = when (direction) {
@@ -215,6 +297,7 @@ object SwapRates {
 
     /** What arrives for [amount] of [from], after the fee, cut to [to]'s precision. */
     fun quote(from: Asset, to: Asset, amount: BigDecimal): BigDecimal =
+<<<<<<< HEAD
         // Multiply before dividing, as the server does, so a rounded rate never costs a unit.
         (amount - fee(from, amount)).max(BigDecimal.ZERO)
             .multiply(lkrPrice.getValue(from))
@@ -259,6 +342,27 @@ class WalletViewModel(
 
     /** This user's deposit address for [token]; the example address until the server's arrives. */
     fun addressOf(token: CryptoToken): String = addresses.value[token] ?: token.address
+=======
+        (amount - fee(from, amount)).max(BigDecimal.ZERO)
+            .multiply(rate(from, to))
+            .setScale(to.decimals, RoundingMode.DOWN)
+}
+
+/**
+ * In-memory wallet for the prototype. Swap the seeded data for a Room-cached remote
+ * repository once the wallet API is available.
+ */
+class WalletViewModel : ViewModel() {
+    private val balances = mutableStateOf(
+        mapOf(
+            Asset.LKR to BigDecimal("32483.75"),
+            Asset.USDT to BigDecimal("1284.32"),
+            Asset.BTC to BigDecimal("0.042150"),
+            Asset.ETH to BigDecimal("0.8532"),
+            Asset.SOL to BigDecimal("41.20"),
+        ),
+    )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     var selectedWallet by mutableStateOf(WalletType.Fiat)
 
@@ -274,6 +378,7 @@ class WalletViewModel(
      */
     var lastShownBalance: Pair<Asset, BigDecimal>? = null
 
+<<<<<<< HEAD
     /** Newest first. */
     val transactions = mutableStateListOf<WalletTransaction>()
 
@@ -413,6 +518,91 @@ class WalletViewModel(
                 e.isUnauthenticated -> signOutLocally()
                 e.isNetwork || e.status >= 500 -> isOffline = true
             }
+=======
+    private val now = System.currentTimeMillis()
+    private fun minutesAgo(minutes: Long) = now - minutes * 60_000
+
+    val transactions = mutableStateListOf(
+        WalletTransaction(1, "Janidu", "janidup", TransactionDirection.Outgoing, "LKR", BigDecimal("10000.00"), WalletType.Fiat, minutesAgo(12)),
+        WalletTransaction(2, "Sajjad", "sajjad67", TransactionDirection.Incoming, "USDT", BigDecimal("73.54"), WalletType.Crypto, minutesAgo(40)),
+        WalletTransaction(3, "Dialog", "dialoglk", TransactionDirection.Outgoing, "LKR", BigDecimal("2500.00"), WalletType.Fiat, minutesAgo(118)),
+        WalletTransaction(4, "Ruveen", "ruveenobject", TransactionDirection.Outgoing, "SOL", BigDecimal("23.54"), WalletType.Crypto, minutesAgo(124)),
+        WalletTransaction(5, "Anuka", "anuka67", TransactionDirection.Incoming, "LKR", BigDecimal("6700.00"), WalletType.Fiat, minutesAgo(131)),
+        WalletTransaction(6, "Kavindi", "kavindi.p", TransactionDirection.Incoming, "BTC", BigDecimal("0.0125"), WalletType.Crypto, minutesAgo(302)),
+        WalletTransaction(7, "Pasan", "pasan.lk", TransactionDirection.Outgoing, "ETH", BigDecimal("0.15"), WalletType.Crypto, minutesAgo(1_510)),
+        WalletTransaction(8, "Keells", "keells", TransactionDirection.Outgoing, "LKR", BigDecimal("4320.00"), WalletType.Fiat, minutesAgo(1_565)),
+    )
+
+    /** Profile, linked accounts, settings and the notification feed. */
+    val account = AccountState(now)
+
+    private var pollingJob: Job? = null
+    private val _incomingPaymentEvent = MutableSharedFlow<String>(extraBufferCapacity = 10)
+    val incomingPaymentEvent = _incomingPaymentEvent.asSharedFlow()
+
+    private val transactionIdMap = mutableMapOf<String, Long>()
+    private var nextTransactionId = 1000L
+    private val notificationIdMap = mutableMapOf<String, Long>()
+    private var nextNotificationId = 1000L
+    private val notifiedIncomingIds = mutableSetOf<String>()
+    private var hasSyncedTransactions = false
+    private var hasSyncedNotifications = false
+
+    @Synchronized
+    private fun getOrAssignTransactionId(remoteId: String): Long {
+        return transactionIdMap.getOrPut(remoteId) {
+            nextTransactionId++
+        }
+    }
+
+    @Synchronized
+    private fun getOrAssignNotificationId(remoteId: String): Long {
+        return notificationIdMap.getOrPut(remoteId) {
+            nextNotificationId++
+        }
+    }
+
+    fun startPolling() {
+        if (pollingJob?.isActive == true) return
+        pollingJob = viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                if (FirebaseAuth.getInstance().currentUser != null) {
+                    syncAll()
+                }
+                delay(3_000)
+            }
+        }
+    }
+
+    fun stopPolling() {
+        pollingJob?.cancel()
+        pollingJob = null
+    }
+
+    suspend fun syncAll() {
+        runCatching { refreshBalances() }
+        runCatching { refreshTransactions() }
+        runCatching { refreshNotifications() }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopPolling()
+    }
+
+    init {
+        // Seed the feed with the recent payments people sent this user.
+        transactions.filter { it.direction == TransactionDirection.Incoming }.forEach { tx ->
+            val asset = Asset.fromCode(tx.currency) ?: Asset.LKR
+            account.notify(
+                NotificationKind.Transaction,
+                "Payment received",
+                "${tx.counterpartyName} sent you ${asset.code} ${tx.amount.toAmountString(asset)}.",
+                transactionId = tx.id,
+                timestamp = tx.timestamp,
+                read = now - tx.timestamp > 60 * 60_000,
+            )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         }
     }
 
@@ -420,6 +610,7 @@ class WalletViewModel(
     val recentRecipients: List<PayCeylonUser>
         get() = transactions
             .filter { it.direction == TransactionDirection.Outgoing || it.direction == TransactionDirection.Incoming }
+<<<<<<< HEAD
             .map { PayCeylonUser(it.counterpartyName, it.counterpartyHandle) }
             .distinctBy { it.handle }
 
@@ -432,6 +623,134 @@ class WalletViewModel(
     }
 
     fun balanceOf(asset: Asset): BigDecimal = balances.value[asset] ?: BigDecimal.ZERO
+=======
+            .map { tx ->
+                findPayCeylonUser(tx.counterpartyHandle)
+                    ?: PayCeylonUser(tx.counterpartyName, tx.counterpartyHandle)
+            }
+            .filter { it.handle.isNotBlank() }
+            .distinctBy { it.handle.lowercase() }
+
+    fun balanceOf(asset: Asset): BigDecimal = balances.value.getValue(asset)
+
+    suspend fun refreshBalances() {
+        val response = BackendApi.get("/wallet/balances").getJSONObject("balances")
+        val updated = balances.value.toMutableMap()
+        Asset.entries.forEach { asset ->
+            if (response.has(asset.code)) {
+                updated[asset] = response.getString(asset.code).toBigDecimal()
+            }
+        }
+        balances.value = updated
+    }
+
+    suspend fun refreshTransactions() {
+        val response = BackendApi.get("/transactions?limit=50")
+        val items = response.getJSONArray("items")
+        val remoteTxs = mutableListOf<WalletTransaction>()
+        for (i in 0 until items.length()) {
+            val item = items.getJSONObject(i)
+            val remoteId = item.optString("id")
+            val direction = when (item.optString("direction").uppercase()) {
+                "INCOMING" -> TransactionDirection.Incoming
+                "OUTGOING" -> TransactionDirection.Outgoing
+                "SWAP" -> TransactionDirection.Swap
+                "TOP_UP" -> TransactionDirection.TopUp
+                "WITHDRAWAL" -> TransactionDirection.Withdrawal
+                else -> TransactionDirection.Incoming
+            }
+            val wallet = if (item.optString("wallet").uppercase() == "CRYPTO") {
+                WalletType.Crypto
+            } else {
+                WalletType.Fiat
+            }
+            val cpObj = item.optJSONObject("counterparty")
+            val cpName = cpObj?.optString("name")?.takeUnless { it.isNullOrBlank() } ?: "PayCeylon User"
+            val cpHandle = cpObj?.optString("handle")?.takeUnless { it.isNullOrBlank() } ?: ""
+            val currency = item.optString("currency", "LKR")
+            val amount = item.optString("amount", "0").toBigDecimalOrNull() ?: BigDecimal.ZERO
+            val timestamp = item.optLong("timestamp", System.currentTimeMillis())
+            val toCurrency = item.optString("toCurrency").takeUnless { it.isNullOrBlank() || it == "null" }
+            val toAmount = item.optString("toAmount").takeUnless { it.isNullOrBlank() || it == "null" }?.toBigDecimalOrNull()
+            val fee = item.optString("fee").takeUnless { it.isNullOrBlank() || it == "null" }?.toBigDecimalOrNull()
+            val feeCurrency = item.optString("feeCurrency").takeUnless { it.isNullOrBlank() || it == "null" }
+            val localId = getOrAssignTransactionId(remoteId)
+            remoteTxs.add(
+                WalletTransaction(
+                    id = localId,
+                    counterpartyName = cpName,
+                    counterpartyHandle = cpHandle,
+                    direction = direction,
+                    currency = currency,
+                    amount = amount,
+                    wallet = wallet,
+                    timestamp = timestamp,
+                    toCurrency = toCurrency,
+                    toAmount = toAmount,
+                    fee = fee,
+                    feeCurrency = feeCurrency,
+                    remoteId = remoteId,
+                )
+            )
+        }
+
+        for (tx in remoteTxs) {
+            if (tx.direction == TransactionDirection.Incoming && tx.remoteId != null) {
+                if (!hasSyncedTransactions) {
+                    notifiedIncomingIds.add(tx.remoteId)
+                } else if (tx.remoteId !in notifiedIncomingIds) {
+                    notifiedIncomingIds.add(tx.remoteId)
+                    val asset = Asset.fromCode(tx.currency) ?: Asset.LKR
+                    _incomingPaymentEvent.tryEmit(
+                        "Payment received: ${tx.counterpartyName} sent you ${tx.currency} ${tx.amount.toAmountString(asset)}"
+                    )
+                }
+            }
+        }
+        hasSyncedTransactions = true
+
+        if (transactions.toList() != remoteTxs) {
+            transactions.clear()
+            transactions.addAll(remoteTxs)
+        }
+    }
+
+    suspend fun refreshNotifications() {
+        val response = BackendApi.get("/notifications?limit=50")
+        val items = response.getJSONArray("items")
+        val remoteNotifs = mutableListOf<AppNotification>()
+        for (i in 0 until items.length()) {
+            val item = items.getJSONObject(i)
+            val remoteId = item.optString("id")
+            val kind = when (item.optString("kind").uppercase()) {
+                "TRANSACTION" -> NotificationKind.Transaction
+                "SECURITY" -> NotificationKind.Security
+                else -> NotificationKind.Account
+            }
+            val title = item.optString("title", "Notification")
+            val body = item.optString("body", "")
+            val timestamp = item.optLong("timestamp", System.currentTimeMillis())
+            val read = item.optBoolean("read", false)
+            val txRemoteId = item.optString("transactionId").takeUnless { it.isNullOrBlank() || it == "null" }
+            val txLocalId = txRemoteId?.let { getOrAssignTransactionId(it) }
+            val localId = getOrAssignNotificationId(remoteId)
+            remoteNotifs.add(
+                AppNotification(
+                    id = localId,
+                    kind = kind,
+                    title = title,
+                    body = body,
+                    timestamp = timestamp,
+                    transactionId = txLocalId,
+                    read = read,
+                    remoteId = remoteId,
+                )
+            )
+        }
+        hasSyncedNotifications = true
+        account.replaceNotifications(remoteNotifs)
+    }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     /**
      * Percentage change in [asset]'s balance compared with 30 days ago, worked back from the
@@ -447,6 +766,7 @@ class WalletViewModel(
         return (current - monthAgo).multiply(BigDecimal(100)).divide(monthAgo, 1, RoundingMode.HALF_UP)
     }
 
+<<<<<<< HEAD
     // Actions throw ApiException with a message to show. Pass the same idempotency key when
     // retrying one payment, so a request that reached the server is never applied twice.
 
@@ -496,6 +816,190 @@ class WalletViewModel(
         session = SessionState.SignedOut
         // Nothing of this account stays on the device after signing out.
         viewModelScope.launch { cache.clear() }
+=======
+    /**
+     * Debits [asset] (plus the network fee for tokens) and records the transfer. Returns false
+     * when the amount and fee together exceed the balance.
+     */
+    suspend fun send(handle: String, amount: BigDecimal, asset: Asset): Boolean {
+        val balance = balanceOf(asset)
+        val fee = WalletFees.networkFee(asset) ?: BigDecimal.ZERO
+        if (amount <= BigDecimal.ZERO || amount + fee > balance) return false
+        val response = BackendApi.post(
+            "/payments",
+            JSONObject()
+                .put("to", handle.removePrefix("@"))
+                .put("amount", amount.toPlainString())
+                .put("currency", asset.code),
+            idempotencyKey = UUID.randomUUID().toString(),
+        )
+        val refreshed = runCatching { refreshBalances() }.isSuccess
+        if (!refreshed) balances.value = balances.value + (asset to balance - amount - fee)
+        val remoteId = response.optString("id").takeIf(String::isNotBlank)
+        val localId = remoteId?.let { getOrAssignTransactionId(it) } ?: ((transactions.maxOfOrNull { it.id } ?: 0) + 1)
+        val tx = WalletTransaction(
+            id = localId,
+            counterpartyName = findPayCeylonUser(handle)?.name?.substringBefore(' ')
+                ?: handle.replaceFirstChar { it.uppercase() },
+            counterpartyHandle = handle,
+            direction = TransactionDirection.Outgoing,
+            currency = asset.code,
+            amount = amount,
+            wallet = asset.wallet,
+            timestamp = System.currentTimeMillis(),
+            fee = fee.takeIf { it.signum() > 0 },
+            feeCurrency = asset.code.takeIf { fee.signum() > 0 },
+            remoteId = remoteId,
+        )
+        transactions.add(0, tx)
+        notifyTransaction(tx, "Payment sent", "${asset.code} ${amount.toAmountString(asset)} to @$handle.")
+        return true
+    }
+
+    /**
+     * Swaps [amount] of [from] into [to] at [SwapRates]. Returns what was received, or null
+     * when the amount is invalid or exceeds the balance.
+     */
+    suspend fun swap(from: Asset, to: Asset, amount: BigDecimal): BigDecimal? {
+        val balance = balanceOf(from)
+        if (from == to || amount <= BigDecimal.ZERO || amount > balance) return null
+        val quote = BackendApi.post(
+            "/swaps/quote",
+            JSONObject().put("from", from.code).put("to", to.code).put("amount", amount.toPlainString()),
+        )
+        val response = BackendApi.post(
+            "/swaps",
+            JSONObject().put("quoteId", quote.getString("quoteId")),
+            idempotencyKey = UUID.randomUUID().toString(),
+        )
+        val received = response.optString("toAmount").toBigDecimalOrNull() ?: SwapRates.quote(from, to, amount)
+        if (received <= BigDecimal.ZERO) return null
+        val refreshed = runCatching { refreshBalances() }.isSuccess
+        if (!refreshed) {
+            balances.value = balances.value +
+                (from to balance - amount) +
+                (to to balanceOf(to) + received)
+        }
+        val tx = WalletTransaction(
+            id = (transactions.maxOfOrNull { it.id } ?: 0) + 1,
+            counterpartyName = "PayCeylon Swap",
+            counterpartyHandle = "payceylon",
+            direction = TransactionDirection.Swap,
+            currency = from.code,
+            amount = amount,
+            wallet = if (to.wallet == WalletType.Crypto) WalletType.Crypto else from.wallet,
+            timestamp = System.currentTimeMillis(),
+            toCurrency = to.code,
+            toAmount = received,
+            remoteId = response.optString("id").takeIf(String::isNotBlank),
+        )
+        transactions.add(0, tx)
+        notifyTransaction(
+            tx,
+            "Swap complete",
+            "${from.code} ${amount.toAmountString(from)} → ${to.code} ${received.toAmountString(to)}.",
+        )
+        return received
+    }
+
+    /**
+     * Adds [amount] LKR to the fiat wallet from a linked card or bank. Crypto can't be topped
+     * up directly; it is bought by swapping LKR. Returns false over the per-top-up limit.
+     */
+    suspend fun topUp(amount: BigDecimal, method: PaymentMethod): Boolean {
+        if (amount <= BigDecimal.ZERO || amount > WalletFees.maxTopUpLkr) return false
+        val response = BackendApi.post(
+            "/topups",
+            JSONObject()
+                .put("amount", amount.toPlainString())
+                .put("paymentMethodId", resolvePaymentMethodId(method)),
+            idempotencyKey = UUID.randomUUID().toString(),
+        )
+        val previousBalance = balanceOf(Asset.LKR)
+        val refreshed = runCatching { refreshBalances() }.isSuccess
+        if (!refreshed) balances.value = balances.value + (Asset.LKR to previousBalance + amount)
+        val tx = recordExternal(
+            TransactionDirection.TopUp,
+            method,
+            amount,
+            WalletFees.topUpFee(amount, method),
+            response.optString("id").takeIf(String::isNotBlank),
+        )
+        notifyTransaction(tx, "Top-up successful", "LKR ${amount.toMoneyString()} added from ${method.title}.")
+        return true
+    }
+
+    /**
+     * Pays [amount] LKR out to a linked bank account, plus [WalletFees.withdrawalFee]. Crypto
+     * must be swapped to LKR first. Returns false when amount and fee exceed the balance.
+     */
+    suspend fun withdraw(amount: BigDecimal, bank: PaymentMethod): Boolean {
+        val fee = WalletFees.withdrawalFee
+        val balance = balanceOf(Asset.LKR)
+        if (bank.type != PaymentMethodType.Bank || amount <= BigDecimal.ZERO || amount + fee > balance) return false
+        val response = BackendApi.post(
+            "/withdrawals",
+            JSONObject()
+                .put("amount", amount.toPlainString())
+                .put("paymentMethodId", resolvePaymentMethodId(bank)),
+            idempotencyKey = UUID.randomUUID().toString(),
+        )
+        val refreshed = runCatching { refreshBalances() }.isSuccess
+        if (!refreshed) balances.value = balances.value + (Asset.LKR to balance - amount - fee)
+        val tx = recordExternal(
+            TransactionDirection.Withdrawal,
+            bank,
+            amount,
+            fee,
+            response.optString("id").takeIf(String::isNotBlank),
+        )
+        notifyTransaction(tx, "Withdrawal on its way", "LKR ${amount.toMoneyString()} to ${bank.title}. ETA: ${bank.eta.lowercase()}.")
+        return true
+    }
+
+    private fun notifyTransaction(tx: WalletTransaction, title: String, body: String) {
+        account.notify(NotificationKind.Transaction, title, body, transactionId = tx.id, timestamp = tx.timestamp)
+    }
+
+    private fun recordExternal(
+        direction: TransactionDirection,
+        method: PaymentMethod,
+        amount: BigDecimal,
+        fee: BigDecimal,
+        remoteId: String? = null,
+    ): WalletTransaction {
+        val tx = WalletTransaction(
+            id = (transactions.maxOfOrNull { it.id } ?: 0) + 1,
+            counterpartyName = method.name,
+            counterpartyHandle = method.masked,
+            direction = direction,
+            currency = Asset.LKR.code,
+            amount = amount,
+            wallet = WalletType.Fiat,
+            timestamp = System.currentTimeMillis(),
+            fee = fee,
+            feeCurrency = Asset.LKR.code,
+            remoteId = remoteId,
+        )
+        transactions.add(0, tx)
+        return tx
+    }
+
+    private suspend fun resolvePaymentMethodId(method: PaymentMethod): String {
+        method.remoteId?.let { return it }
+        val items = BackendApi.get("/payment-methods").getJSONArray("items")
+        for (index in 0 until items.length()) {
+            val item = items.getJSONObject(index)
+            if (
+                item.optString("type").equals(method.type.name, ignoreCase = true) &&
+                item.optString("name").equals(method.name, ignoreCase = true) &&
+                item.optString("last4") == method.last4
+            ) {
+                return item.getString("id")
+            }
+        }
+        error("This payment method is no longer linked. Refresh your payment methods and try again.")
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     }
 }
 

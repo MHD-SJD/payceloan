@@ -15,7 +15,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+<<<<<<< HEAD
 import androidx.compose.foundation.layout.BoxWithConstraints
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +33,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+<<<<<<< HEAD
+=======
+import android.widget.Toast
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,10 +53,17 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+<<<<<<< HEAD
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+=======
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,30 +76,50 @@ import com.payceylon.app.ui.components.bounceClick
 import com.payceylon.app.ui.components.staggeredEntrance
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.LocalWalletColors
+<<<<<<< HEAD
 import com.payceylon.app.ui.components.rememberSubmitState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.UUID
+=======
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.math.BigDecimal
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 @Composable
 fun SwapScreen(
     initialFrom: Asset,
     balanceOf: (Asset) -> BigDecimal,
+<<<<<<< HEAD
     /** Performs the swap and returns the amount received; throws ApiException when rejected. */
     onSwap: suspend (from: Asset, to: Asset, amount: BigDecimal, requestKey: String) -> BigDecimal,
+=======
+    /** Performs the swap; returns the amount received, or null if it was rejected. */
+    onSwap: suspend (from: Asset, to: Asset, amount: BigDecimal) -> BigDecimal?,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     val requestKey = rememberSaveable { UUID.randomUUID().toString() }
     val submit = rememberSubmitState()
+=======
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     var from by rememberSaveable { mutableStateOf(initialFrom) }
     var to by rememberSaveable { mutableStateOf(defaultSwapTarget(initialFrom)) }
     var amountInput by rememberSaveable { mutableStateOf("") }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
     var flipTurns by rememberSaveable { mutableFloatStateOf(0f) }
+<<<<<<< HEAD
+=======
+    var swapping by rememberSaveable { mutableStateOf(false) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     val amount = amountInput.toBigDecimalOrNull() ?: BigDecimal.ZERO
     val balance = balanceOf(from)
@@ -208,11 +242,31 @@ fun SwapScreen(
             )
             Spacer(Modifier.height(20.dp))
             PayCeylonButton(
+<<<<<<< HEAD
                 label = if (submit.busy) "Swapping…" else "Swap ${from.code} to ${to.code}",
                 onClick = {
                     submit.run { result = onSwap(from, to, amount, requestKey).toPlainString() }
                 },
                 enabled = canSwap && !submit.busy,
+=======
+                label = "Swap ${from.code} to ${to.code}",
+                onClick = {
+                    if (!swapping) {
+                        swapping = true
+                        scope.launch {
+                            try {
+                                onSwap(from, to, amount)?.let { result = it.toPlainString() }
+                                    ?: Toast.makeText(context, "The swap could not be completed.", Toast.LENGTH_LONG).show()
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "The swap could not be completed.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                swapping = false
+                            }
+                        }
+                    }
+                },
+                enabled = canSwap && !swapping,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 modifier = Modifier.staggeredEntrance(3),
             )
         }
@@ -307,6 +361,7 @@ private fun SwapCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+<<<<<<< HEAD
             // Shrinks for long figures so they never clip against the asset chip.
             val stepSize = when {
                 amountText.length > 13 -> 20f
@@ -332,15 +387,38 @@ private fun SwapCard(
                 Text(
                     text = amountText,
                     modifier = Modifier.graphicsLayer {
+=======
+            Text(
+                text = amountText,
+                modifier = Modifier
+                    .weight(1f)
+                    .graphicsLayer {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         scaleX = bump.value
                         scaleY = bump.value
                         transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)
                     },
+<<<<<<< HEAD
                     style = amountStyle(stepSize * fit),
                     maxLines = 1,
                     softWrap = false,
                 )
             }
+=======
+                color = amountColor,
+                fontFamily = InterFontFamily,
+                // Shrinks for long figures so they never clip against the asset chip.
+                fontSize = when {
+                    amountText.length > 13 -> 20.sp
+                    amountText.length > 9 -> 26.sp
+                    else -> 34.sp
+                },
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = (-1).sp,
+                maxLines = 1,
+                style = TextStyle(fontFeatureSettings = "tnum"),
+            )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             Spacer(Modifier.width(12.dp))
             SwapAssetChip(selected = asset, onSelect = onAssetChange)
         }

@@ -20,6 +20,7 @@ local.properties
 *.jks
 *.keystore
 keystore.properties
+<<<<<<< HEAD
 
 # Python backend
 __pycache__/
@@ -28,3 +29,9 @@ __pycache__/
 backend/.env
 firebase-debug.log
 backend/*service-account*.json
+=======
+.env
+.venv/
+__pycache__/
+*.py[cod]
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834

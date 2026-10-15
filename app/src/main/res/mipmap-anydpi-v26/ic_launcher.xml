@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
 <!-- White icon with the primary-red PayCeylon glyph (Android 8+, any mask shape). -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@android:color/white" />
     <foreground android:drawable="@drawable/ic_launcher_logo" />
     <!-- Themed (Material You) icons tint this; same size as the foreground. -->
     <monochrome android:drawable="@drawable/ic_launcher_logo" />
+=======
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/app_icon" />
+    <foreground android:drawable="@drawable/ic_launcher_transparent" />
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 </adaptive-icon>

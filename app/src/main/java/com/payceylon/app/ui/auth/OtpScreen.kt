@@ -70,18 +70,28 @@ import kotlinx.coroutines.launch
 fun OtpScreen(
     maskedPhoneNumber: String,
     onBack: () -> Unit,
+<<<<<<< HEAD
     /** Checks the code; returns why it was rejected (the code is then cleared), or null. */
     onCodeComplete: suspend (String) -> String?,
     /** Texts a new code. */
     onResend: () -> Unit,
+=======
+    onCodeComplete: (String) -> Unit,
+    isVerifying: Boolean = false,
+    verificationError: String? = null,
+    onResend: () -> Unit = {},
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onLogIn: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var code by rememberSaveable { mutableStateOf("") }
     var secondsRemaining by rememberSaveable { mutableIntStateOf(30) }
     var isCodeRejected by rememberSaveable { mutableStateOf(false) }
+<<<<<<< HEAD
     var rejection by rememberSaveable { mutableStateOf("That code didn't match. Try again.") }
     var isChecking by remember { mutableStateOf(false) }
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val focusRequester = remember { FocusRequester() }
     val shakeOffset = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
@@ -142,6 +152,7 @@ fun OtpScreen(
         BasicTextField(
             value = code,
             onValueChange = { newValue ->
+<<<<<<< HEAD
                 if (isChecking) return@BasicTextField
                 val digits = newValue.filter(Char::isDigit).take(6)
                 code = digits
@@ -166,6 +177,14 @@ fun OtpScreen(
                         )
                         code = ""
                     }
+=======
+                val digits = newValue.filter(Char::isDigit).take(6)
+                code = digits
+                if (digits.isNotEmpty()) isCodeRejected = false
+                if (digits.length == 6 && !isVerifying) {
+                    isCodeRejected = false
+                    onCodeComplete(digits)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 }
             },
             modifier = Modifier
@@ -247,6 +266,7 @@ fun OtpScreen(
             },
         )
 
+<<<<<<< HEAD
         AnimatedVisibility(visible = isChecking) {
             Text(
                 text = "Checking code…",
@@ -259,6 +279,11 @@ fun OtpScreen(
         AnimatedVisibility(visible = isCodeRejected) {
             Text(
                 text = rejection,
+=======
+        AnimatedVisibility(visible = isCodeRejected || verificationError != null) {
+            Text(
+                text = verificationError ?: "That code didn't match. Try again.",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 modifier = Modifier.padding(top = 14.dp),
                 color = PayCeylonRed,
                 fontSize = 14.sp,
@@ -267,7 +292,13 @@ fun OtpScreen(
         }
         Spacer(Modifier.height(22.dp))
         PayCeylonButton(
+<<<<<<< HEAD
             label = if (secondsRemaining > 0) {
+=======
+            label = if (isVerifying) {
+                "Verifying code…"
+            } else if (secondsRemaining > 0) {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 "Resend code in 00:${secondsRemaining.toString().padStart(2, '0')}"
             } else {
                 "Resend code"
@@ -276,9 +307,14 @@ fun OtpScreen(
                 if (secondsRemaining == 0) {
                     secondsRemaining = 30
                     code = ""
+<<<<<<< HEAD
                     isCodeRejected = false
                     onResend()
                     focusRequester.requestFocus()
+=======
+                    focusRequester.requestFocus()
+                    onResend()
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 }
             },
             style = PayCeylonButtonStyle.Secondary,

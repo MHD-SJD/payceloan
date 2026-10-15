@@ -1,5 +1,9 @@
 package com.payceylon.app.ui.account
 
+<<<<<<< HEAD
+=======
+import android.app.Activity
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -56,19 +60,30 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+<<<<<<< HEAD
 import com.google.firebase.auth.PhoneAuthCredential
 import com.payceylon.app.R
 import com.payceylon.app.data.ApiException
 import com.payceylon.app.data.CodeRequest
 import com.payceylon.app.data.PhoneAuth
+=======
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.payceylon.app.R
+import com.payceylon.app.data.BackendApi
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.auth.PayCeylonButton
 import com.payceylon.app.ui.auth.PayCeylonButtonStyle
 import com.payceylon.app.ui.auth.SriLankanPhoneVisualTransformation
 import com.payceylon.app.ui.auth.maskSriLankanMobileNumber
 import com.payceylon.app.ui.auth.normalizeSriLankanMobileNumber
 import com.payceylon.app.ui.components.PayCeylonTextField
+<<<<<<< HEAD
 import com.payceylon.app.ui.components.findActivity
 import com.payceylon.app.ui.components.rememberSubmitState
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.components.tap
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.LocalWalletColors
@@ -77,6 +92,12 @@ import com.payceylon.app.ui.wallet.PageHeader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+<<<<<<< HEAD
+=======
+import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
+import java.util.concurrent.TimeUnit
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 @Composable
 fun ProfileScreen(
@@ -87,12 +108,20 @@ fun ProfileScreen(
 ) {
     val colors = LocalWalletColors.current
     val context = LocalContext.current
+<<<<<<< HEAD
     val submit = rememberSubmitState()
+=======
+    val scope = rememberCoroutineScope()
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val profile = account.profile
     // The system photo picker needs no storage permission.
     val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
+<<<<<<< HEAD
             submit.run {
+=======
+            scope.launch {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 val bitmap = loadProfilePhoto(context, uri)
                 if (bitmap != null) {
                     account.updatePhoto(bitmap)
@@ -124,7 +153,10 @@ fun ProfileScreen(
             Box(modifier = Modifier) {
                 ProfileAvatar(
                     account.photo,
+<<<<<<< HEAD
                     name = account.profile.name,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     size = 108.dp,
                     modifier = Modifier.tap { choosePhoto() },
                 )
@@ -161,7 +193,20 @@ fun ProfileScreen(
                 if (account.photo != null) {
                     Text(
                         text = "Remove",
+<<<<<<< HEAD
                         modifier = Modifier.tap { submit.run { account.updatePhoto(null) } },
+=======
+                        modifier = Modifier.tap {
+                            scope.launch {
+                                try {
+                                    BackendApi.delete("/me/photo")
+                                    account.updatePhoto(null)
+                                } catch (error: Exception) {
+                                    Toast.makeText(context, error.message ?: "Could not remove your photo.", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         color = colors.contentSecondary,
                         fontFamily = InterFontFamily,
                         fontSize = 14.sp,
@@ -192,7 +237,11 @@ fun ProfileScreen(
 }
 
 /** Decodes a picked photo, downsampled to roughly avatar size. */
+<<<<<<< HEAD
 internal suspend fun loadProfilePhoto(context: Context, uri: Uri): ImageBitmap? = withContext(Dispatchers.IO) {
+=======
+private suspend fun loadProfilePhoto(context: Context, uri: Uri): ImageBitmap? = withContext(Dispatchers.IO) {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     runCatching {
         val resolver = context.contentResolver
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -215,12 +264,18 @@ fun EditProfileFieldScreen(
 ) {
     val colors = LocalWalletColors.current
     val context = LocalContext.current
+<<<<<<< HEAD
     val submit = rememberSubmitState()
+=======
+    val activity = context as? Activity
+    val scope = rememberCoroutineScope()
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val original = account.profile.valueOf(field)
     var value by rememberSaveable { mutableStateOf(original) }
     var code by rememberSaveable { mutableStateOf("") }
     var verifyingPhone by rememberSaveable { mutableStateOf(false) }
     var codeError by rememberSaveable { mutableStateOf<String?>(null) }
+<<<<<<< HEAD
     var verificationId by rememberSaveable { mutableStateOf<String?>(null) }
     var serverError by remember { mutableStateOf<String?>(null) }
 
@@ -265,6 +320,104 @@ fun EditProfileFieldScreen(
             changePhone(PhoneAuth.credential(id, code))
         } catch (e: ApiException) {
             if (e.code == "INVALID_OTP") codeError = e.message else throw e
+=======
+    var saving by rememberSaveable { mutableStateOf(false) }
+    var verificationId by remember { mutableStateOf<String?>(null) }
+    val normalized = normalizeProfileValue(field, value)
+
+    fun requestPhoneCode() {
+        if (activity == null) {
+            codeError = "Phone verification is unavailable."
+            return
+        }
+        codeError = null
+        val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
+            .setPhoneNumber("+94${normalized}")
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(activity)
+            .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                override fun onVerificationCompleted(credential: com.google.firebase.auth.PhoneAuthCredential) {
+                    codeError = "Verification completed. Please continue to save the new number."
+                }
+
+                override fun onVerificationFailed(error: com.google.firebase.FirebaseException) {
+                    codeError = error.message ?: "Could not send a verification code."
+                }
+
+                override fun onCodeSent(id: String, token: PhoneAuthProvider.ForceResendingToken) {
+                    verificationId = id
+                    verifyingPhone = true
+                }
+            })
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    fun verifyAndSavePhone() {
+        val id = verificationId ?: run {
+            codeError = "Request a new code and try again."
+            return
+        }
+        val credential = PhoneAuthProvider.getCredential(id, code)
+        val firebaseUser = FirebaseAuth.getInstance().currentUser ?: run {
+            codeError = "Please sign in again before changing your number."
+            return
+        }
+        firebaseUser.updatePhoneNumber(credential)
+            .addOnSuccessListener {
+                scope.launch {
+                    try {
+                        val token = firebaseUser.getIdToken(true).await().token
+                            ?: error("Firebase did not return a sign-in token.")
+                        BackendApi.patch("/me/phone", JSONObject().put("idToken", token))
+                        account.updateProfile(field, value)?.let { message ->
+                            codeError = message
+                            return@launch
+                        }
+                        Toast.makeText(context, "${field.label} updated", Toast.LENGTH_SHORT).show()
+                        onSaved()
+                    } catch (error: Exception) {
+                        codeError = error.message ?: "Could not update this phone number."
+                    }
+                }
+            }
+            .addOnFailureListener { error ->
+                codeError = error.message ?: "That code did not match."
+            }
+    }
+
+    val changed = normalized != original
+    val error = if (changed && value.isNotBlank()) validateProfileField(field, value, account.profile.handle) else null
+    val canSave = changed && error == null
+
+    fun save() {
+        if (saving) return
+        error?.let {
+            codeError = it
+            return
+        }
+        saving = true
+        scope.launch {
+            try {
+                val body = when (field) {
+                    ProfileField.Name -> JSONObject().put("name", normalized)
+                    ProfileField.Username -> JSONObject().put("handle", normalized)
+                    ProfileField.Email -> JSONObject().put("email", normalized)
+                    ProfileField.Phone -> throw IllegalStateException("Phone numbers require verification.")
+                }
+                BackendApi.patch("/me", body)
+                account.updateProfile(field, value)?.let { message ->
+                    codeError = message
+                    return@launch
+                }
+                Toast.makeText(context, "${field.label} updated", Toast.LENGTH_SHORT).show()
+                onSaved()
+            } catch (failure: Exception) {
+                codeError = failure.message ?: "Could not update this field."
+            } finally {
+                saving = false
+            }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         }
     }
 
@@ -307,6 +460,10 @@ fun EditProfileFieldScreen(
                         label = "Verification code",
                         placeholder = "000000",
                         error = codeError,
+<<<<<<< HEAD
+=======
+                        helper = "Enter the code from the Firebase verification message",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         keyboardType = KeyboardType.NumberPassword,
                         imeAction = ImeAction.Done,
                         modifier = Modifier.focusRequester(focus),
@@ -317,7 +474,11 @@ fun EditProfileFieldScreen(
                     PayCeylonTextField(
                         value = if (field == ProfileField.Phone) normalizeSriLankanMobileNumber(value) else value,
                         onValueChange = {
+<<<<<<< HEAD
                             serverError = null
+=======
+                            codeError = null
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                             value = when (field) {
                                 ProfileField.Phone -> normalizeSriLankanMobileNumber(it)
                                 ProfileField.Username -> it.lowercase().replace(" ", "").take(20)
@@ -325,8 +486,15 @@ fun EditProfileFieldScreen(
                             }
                         },
                         label = field.label,
+<<<<<<< HEAD
                         error = error,
                         helper = when {
+=======
+                        error = error ?: codeError,
+                        helper = when {
+                            codeError != null -> codeError
+                            field == ProfileField.Username && canSave -> "@$normalized is available"
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                             field == ProfileField.Username -> "3–20 characters: letters, numbers, dots, underscores"
                             field == ProfileField.Phone -> "We'll text a code to confirm the new number"
                             field == ProfileField.Email -> "Receipts and security alerts go here"
@@ -356,19 +524,31 @@ fun EditProfileFieldScreen(
         }
         PayCeylonButton(
             label = when {
+<<<<<<< HEAD
                 submit.busy -> "Please wait…"
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 verifyingPhone -> "Verify and save"
                 field == ProfileField.Phone -> "Send code"
                 else -> "Save"
             },
             onClick = {
                 when {
+<<<<<<< HEAD
                     verifyingPhone -> verifyCode()
                     field == ProfileField.Phone -> sendCode()
                     else -> save()
                 }
             },
             enabled = !submit.busy && if (verifyingPhone) code.length == 6 else canSave,
+=======
+                    verifyingPhone -> verifyAndSavePhone()
+                    field == ProfileField.Phone -> requestPhoneCode()
+                    else -> save()
+                }
+            },
+            enabled = if (verifyingPhone) code.length == 6 && !saving else canSave && !saving,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             style = PayCeylonButtonStyle.Accent,
         )
     }

@@ -2,6 +2,10 @@ package com.payceylon.app.ui.account
 
 import com.payceylon.app.ui.auth.normalizeSriLankanMobileNumber
 import com.payceylon.app.ui.auth.phoneNumberError
+<<<<<<< HEAD
+=======
+import com.payceylon.app.ui.wallet.PayCeylonDirectory
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import java.util.Calendar
 
 private val EmailPattern = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
@@ -15,8 +19,13 @@ internal fun normalizeProfileValue(field: ProfileField, value: String): String =
     ProfileField.Email -> value.trim().lowercase()
 }
 
+<<<<<<< HEAD
 /** Why [value] can't be saved for [field], or null when it can. The server checks usernames are free. */
 internal fun validateProfileField(field: ProfileField, value: String): String? {
+=======
+/** Why [value] can't be saved for [field], or null when it can. */
+internal fun validateProfileField(field: ProfileField, value: String, ownHandle: String): String? {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val normalized = normalizeProfileValue(field, value)
     return when (field) {
         ProfileField.Name -> when {
@@ -27,6 +36,11 @@ internal fun validateProfileField(field: ProfileField, value: String): String? {
         ProfileField.Username -> when {
             normalized.length < 3 -> "Usernames need at least 3 characters."
             !UsernamePattern.matches(normalized) -> "Use lowercase letters, numbers, dots and underscores."
+<<<<<<< HEAD
+=======
+            normalized != ownHandle && PayCeylonDirectory.any { it.handle.equals(normalized, ignoreCase = true) } ->
+                "@$normalized is already taken."
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             else -> null
         }
         ProfileField.Phone -> phoneNumberError(normalized)

@@ -16,7 +16,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+<<<<<<< HEAD
 import androidx.compose.foundation.layout.BoxWithConstraints
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +34,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+<<<<<<< HEAD
+=======
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,10 +59,15 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
+<<<<<<< HEAD
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+=======
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -66,7 +79,10 @@ import com.payceylon.app.ui.components.PayCeylonDropdownMenu
 import com.payceylon.app.ui.components.PayCeylonEasing
 import com.payceylon.app.ui.components.PressSpring
 import com.payceylon.app.ui.components.bounceClick
+<<<<<<< HEAD
 import com.payceylon.app.ui.components.rememberSubmitState
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.components.staggeredEntrance
 import com.payceylon.app.ui.theme.LocalWalletColors
 import com.payceylon.app.ui.theme.InterFontFamily
@@ -74,11 +90,18 @@ import com.payceylon.app.ui.theme.PayCeylonPrimary
 import com.payceylon.app.ui.theme.PriceGreen
 import com.payceylon.app.ui.theme.PriceRed
 import kotlinx.coroutines.delay
+<<<<<<< HEAD
+=======
+import kotlinx.coroutines.launch
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
+<<<<<<< HEAD
 import java.util.UUID
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 private const val MaxWholeDigits = 9
 
@@ -89,17 +112,31 @@ fun SendMoneyScreen(
     /** Keypad-format amount to start with, e.g. from a scanned payment request. */
     initialAmount: String = "",
     balanceOf: (Asset) -> BigDecimal,
+<<<<<<< HEAD
     /** Sends the money; throws ApiException when rejected. Retries reuse [requestKey]. */
     onSend: suspend (amount: BigDecimal, asset: Asset, requestKey: String) -> Unit,
+=======
+    /** Returns false when the transfer is rejected (e.g. insufficient funds). */
+    onSend: suspend (amount: BigDecimal, asset: Asset) -> Boolean,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+<<<<<<< HEAD
     var amountInput by rememberSaveable { mutableStateOf(initialAmount) }
     var asset by rememberSaveable { mutableStateOf(initialAsset) }
     var sentAmount by rememberSaveable { mutableStateOf<String?>(null) }
     val requestKey = rememberSaveable { UUID.randomUUID().toString() }
     val submit = rememberSubmitState()
+=======
+    val context = LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var amountInput by rememberSaveable { mutableStateOf(initialAmount) }
+    var asset by rememberSaveable { mutableStateOf(initialAsset) }
+    var sentAmount by rememberSaveable { mutableStateOf<String?>(null) }
+    var sending by rememberSaveable { mutableStateOf(false) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     val amount = amountInput.toBigDecimalOrNull() ?: BigDecimal.ZERO
     val balance = balanceOf(asset)
@@ -208,6 +245,7 @@ fun SendMoneyScreen(
             )
             Spacer(Modifier.height(20.dp))
             PayCeylonButton(
+<<<<<<< HEAD
                 label = if (submit.busy) "Sending…" else "Send",
                 onClick = {
                     submit.run {
@@ -216,6 +254,25 @@ fun SendMoneyScreen(
                     }
                 },
                 enabled = amount > BigDecimal.ZERO && !exceedsBalance && !submit.busy,
+=======
+                label = "Send",
+                onClick = {
+                    if (!sending) {
+                        sending = true
+                        scope.launch {
+                            try {
+                                if (onSend(amount, asset)) sentAmount = amount.toPlainString()
+                                else Toast.makeText(context, "The transfer could not be completed.", Toast.LENGTH_LONG).show()
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "The transfer could not be completed.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                sending = false
+                            }
+                        }
+                    }
+                },
+                enabled = amount > BigDecimal.ZERO && !exceedsBalance && !sending,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 modifier = Modifier.staggeredEntrance(5),
             )
         }
@@ -287,6 +344,7 @@ internal fun AmountDisplay(
             bump.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = 900f))
         }
     }
+<<<<<<< HEAD
     val tertiary = LocalWalletColors.current.contentTertiary
     fun amountText(fit: Float) = buildAnnotatedString {
         withStyle(SpanStyle(color = tertiary, fontSize = (36 * fit).sp)) { append("$currency ") }
@@ -316,6 +374,28 @@ internal fun AmountDisplay(
             softWrap = false,
         )
     }
+=======
+    Text(
+        text = buildAnnotatedString {
+            withStyle(SpanStyle(color = LocalWalletColors.current.contentTertiary, fontSize = 36.sp)) { append("$currency ") }
+            withStyle(SpanStyle(color = wholeColor, fontSize = wholeSize.sp, letterSpacing = (-0.05f * wholeSize).sp)) {
+                append(whole)
+            }
+            withStyle(SpanStyle(color = LocalWalletColors.current.contentTertiary, fontSize = 36.sp, letterSpacing = (-1.8).sp)) {
+                append(".")
+                withStyle(SpanStyle(color = if (typedDecimals.isNotEmpty()) wholeColor else LocalWalletColors.current.contentTertiary)) {
+                    append(typedDecimals)
+                }
+                append("0".repeat((2 - typedDecimals.length).coerceAtLeast(0)))
+            }
+        },
+        modifier = modifier.scale(bump.value),
+        fontFamily = InterFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        maxLines = 1,
+        textAlign = TextAlign.Center,
+    )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 }
 
 @Composable

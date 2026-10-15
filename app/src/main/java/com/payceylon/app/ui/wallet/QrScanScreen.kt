@@ -143,8 +143,20 @@ fun QrScanScreen(
                 onCameraUnavailable = { cameraUnavailable = true },
                 modifier = Modifier.fillMaxSize(),
             )
+<<<<<<< HEAD
         }
         // Until the camera starts (or without permission) the black background shows.
+=======
+        } else {
+            // Figma's camera placeholder, shown until a live preview is available.
+            Image(
+                painter = painterResource(R.drawable.qr_scan_backdrop),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
         ScanOverlay(windowSize = windowSize)
 

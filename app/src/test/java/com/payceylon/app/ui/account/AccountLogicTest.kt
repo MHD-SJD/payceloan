@@ -1,11 +1,14 @@
 package com.payceylon.app.ui.account
 
+<<<<<<< HEAD
 import com.payceylon.app.data.ApiException
 import com.payceylon.app.data.FakeBackend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -14,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Calendar
 
+<<<<<<< HEAD
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountLogicTest {
     private val backend = FakeBackend()
@@ -50,6 +54,39 @@ class AccountLogicTest {
         assertNotNull(account.updateProfile(ProfileField.Email, "nope"))
         assertEquals("That username is already in use.", account.updateProfile(ProfileField.Username, "nimal"))
         assertEquals("kasun_lk", account.profile.handle)
+=======
+class AccountLogicTest {
+    @Test
+    fun validatesProfileFields() {
+        assertNull(validateProfileField(ProfileField.Name, "  Kasun   Perera ", "kasun.p"))
+        assertNotNull(validateProfileField(ProfileField.Name, "K", "kasun.p"))
+        assertNull(validateProfileField(ProfileField.Email, "Kasun@Example.lk", "kasun.p"))
+        assertNotNull(validateProfileField(ProfileField.Email, "kasun@", "kasun.p"))
+        assertNull(validateProfileField(ProfileField.Phone, "77 123 4567", "kasun.p"))
+        assertNotNull(validateProfileField(ProfileField.Phone, "612345678", "kasun.p"))
+    }
+
+    @Test
+    fun usernamesMustBeFreeAndWellFormed() {
+        assertNull(validateProfileField(ProfileField.Username, "@kasun_p", "kasun.p"))
+        // Keeping your own handle is fine; taking someone else's is not.
+        assertNull(validateProfileField(ProfileField.Username, "kasun.p", "kasun.p"))
+        assertEquals("@janidup is already taken.", validateProfileField(ProfileField.Username, "JaniduP", "kasun.p"))
+        assertNotNull(validateProfileField(ProfileField.Username, "ab", "kasun.p"))
+        assertNotNull(validateProfileField(ProfileField.Username, "kasun perera", "kasun.p"))
+    }
+
+    @Test
+    fun profileChangesAreSavedAndNotified() {
+        val account = AccountState()
+        val before = account.notifications.size
+        assertNull(account.updateProfile(ProfileField.Username, "@Kasun_LK"))
+        assertEquals("kasun_lk", account.profile.handle)
+        assertEquals(before + 1, account.notifications.size)
+        assertEquals("Username updated", account.notifications.first().title)
+        assertNotNull(account.updateProfile(ProfileField.Email, "nope"))
+        assertEquals("kasun.perera@gmail.com", account.profile.email)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     }
 
     @Test
@@ -80,6 +117,7 @@ class AccountLogicTest {
     }
 
     @Test
+<<<<<<< HEAD
     fun addingACardSendsOnlyBrandLastFourAndExpiry() = runTest {
         val account = loadedAccount()
         val card = account.addCard("5500000000000004", "0829", "Kasun Perera")
@@ -88,12 +126,22 @@ class AccountLogicTest {
         assertFalse("5500000000000004" in backend.cardsSent.single().joinToString())
         assertEquals(listOf("Kasun Perera", "Mastercard", "0004", "08/29"), listOf(holder, brand, last4, expiry))
         assertEquals("Mastercard •••• 0004", card.title)
+=======
+    fun addingACardKeepsOnlyTheLastFourDigits() {
+        val account = AccountState()
+        val card = account.addCard("5500000000000004", "0829", "Kasun Perera")
+        assertEquals("0004", card.last4)
+        assertEquals(CardBrand.Mastercard, card.brand)
+        assertEquals("Mastercard •••• 0004", card.title)
+        assertEquals("Expires 08/29", card.detail)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         assertTrue(account.cards.contains(card))
         account.removePaymentMethod(card.id)
         assertFalse(account.paymentMethods.contains(card))
     }
 
     @Test
+<<<<<<< HEAD
     fun markAllReadClearsUnread() = runTest {
         backend.receive("Nimal Silva", "nimal", java.math.BigDecimal.ONE)
         val account = loadedAccount()
@@ -110,6 +158,13 @@ class AccountLogicTest {
         backend.failNext = ApiException(0, ApiException.NetworkErrorCode, "Can't reach PayCeylon.")
         account.markRead(account.notifications.single().id)
         assertEquals(listOf("Can't reach PayCeylon."), reported)
+=======
+    fun markAllReadClearsUnread() {
+        val account = AccountState()
+        assertTrue(account.unreadCount > 0)
+        account.markAllRead()
+        assertEquals(0, account.unreadCount)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     }
 
     @Test

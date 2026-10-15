@@ -4,13 +4,24 @@ This is the contract the Android app is built against. Every screen already work
 in-memory data; each endpoint below lists the app function it replaces, so the mobile side
 can swap the fake for a network call one feature at a time.
 
+<<<<<<< HEAD
 - Base URL: `https://api.payceylon.lk/v1` (configurable per build)
+=======
+- Local base URL: `http://10.0.2.2:8000/v1` in the Android debug build. A real deployment must
+  use HTTPS and configure its own API URL.
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 - JSON over HTTPS, UTF-8. Field names are `camelCase`.
 - **Money is always a decimal string**, never a float: `"32483.75"`, `"0.042150"`.
   The app parses with `BigDecimal`. Decimal places per asset are listed below.
 - Timestamps are epoch **milliseconds** (`1759460000000`), UTC.
+<<<<<<< HEAD
 - Auth: `Authorization: Bearer <accessToken>` on everything except `/auth/*`.
 - Write endpoints take an `Idempotency-Key` header (UUID). Retrying with the same key must
+=======
+- Auth: `Authorization: Bearer <Firebase-ID-token>` on authenticated routes. Firebase Auth
+  verifies the phone OTP on the Android client; FastAPI verifies the resulting Firebase ID token.
+- Money-moving endpoints take an `Idempotency-Key` header (UUID). Retrying with the same key must
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
   return the original result, never move money twice.
 
 ## Errors
@@ -114,6 +125,7 @@ App: `PaymentMethod`, `CardBrand` in `ui/account/AccountState.kt`.
 
 | Method | Path | Body | Response |
 | --- | --- | --- | --- |
+<<<<<<< HEAD
 | POST | `/auth/otp` | `{ "phone": "+94771234567" }` | `204` |
 | POST | `/auth/verify` | `{ "phone": "+94771234567", "code": "123456" }` | `{ accessToken, refreshToken, expiresIn, user }` |
 | POST | `/auth/refresh` | `{ "refreshToken": "…" }` | `{ accessToken, refreshToken, expiresIn }` |
@@ -124,6 +136,18 @@ App: `PaymentMethod`, `CardBrand` in `ui/account/AccountState.kt`.
 - Code: 6 digits. Expire after 5 minutes; limit resends (the app shows a resend countdown).
 - `user` in the verify response is the full profile (see `/me`). New numbers create an account.
 - App today: `DemoOtpCode = "123456"` in `ui/auth/PayCeylonAuthFlow.kt`.
+=======
+| POST | `/auth/verify` | `{ "idToken": "<Firebase ID token>" }` | `{ "user": Profile }` |
+| POST | `/auth/logout` | – | `204` |
+
+- The Android Firebase SDK requests and verifies the SMS code. The API does not generate or
+  receive OTP codes; it validates the Firebase ID token and provisions the PostgreSQL account.
+- Phone: Sri Lankan mobile, `+94` followed by 9 digits starting with `7`
+  (app: `validateSriLankanMobileNumber` in `ui/auth/SriLankanPhoneNumber.kt`).
+- `user` in the verify response is the profile (see `/me`). New verified numbers create an account.
+- `PATCH /me/phone` accepts `{ "idToken": "<Firebase ID token for the changed number>" }` after
+  Firebase phone-number linking succeeds.
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 ## Profile
 
@@ -243,6 +267,12 @@ with LKR, and leaves the app through Send.
   `amount + 25.00 <= balance`. Expected to arrive within 1 hour (CEFTS): return
   `PENDING`, then update to `COMPLETED` and send a notification.
 
+<<<<<<< HEAD
+=======
+**Local demo behavior:** top-ups and withdrawals only modify fictitious PostgreSQL wallet
+balances and transactions. They do not charge a card or transfer money to a bank.
+
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 App: `WalletViewModel.topUp`, `withdraw`, `WalletFees`.
 
 ## Payment methods
@@ -254,9 +284,15 @@ App: `WalletViewModel.topUp`, `withdraw`, `WalletFees`.
 | POST | `/payment-methods/banks` | `{ "bank": "Commercial Bank", "accountNumber": "1234567890", "holder": "…", "accountType": "SAVINGS" }` | PaymentMethod |
 | DELETE | `/payment-methods/{id}` | – | `204` |
 
+<<<<<<< HEAD
 - Cards: the app collects number / expiry / CVV, sends them **directly to the payment
   provider's SDK**, and posts only the returned token. The server gets brand, last4 and expiry
   from the provider. Card validation in the app: Luhn, brand-specific length, unexpired,
+=======
+- Cards: the app collects number / expiry / CVV locally, never sends the PAN or CVV, and posts
+  only a fictitious `demo_tok_…` token plus brand, last4, expiry, and holder. Card validation in
+  the app: Luhn, brand-specific length, unexpired,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
   3-digit CVV (4 for Amex) (`AccountValidation.kt`).
 - Banks: `bank` is one of the names in `SriLankanBanks`; account number 8–16 digits; holder
   name should match the PayCeylon account. Return `last4` only.
@@ -285,3 +321,14 @@ payceylon://pay?to=<handle>[&amount=<decimal>][&currency=<LKR|USDT|BTC|ETH|SOL>]
 `currency` defaults to `LKR` when only an amount is given. If the backend later serves web
 links (`https://pay.payceylon.lk/<handle>`), keep the same query parameters.
 App: `PaymentRequest` in `ui/wallet/PaymentRequest.kt`.
+<<<<<<< HEAD
+=======
+
+## Local development and persistence
+
+Run the FastAPI app and Firebase Auth emulator using the commands in
+[`../backend/README.md`](../backend/README.md). PostgreSQL persists profiles, wallets, ledger
+transactions, payment-method display data, settings, notifications, quotes, and idempotency
+records. Android SQLite is a private cache only; Firebase SDK owns authentication tokens.
+The emulator and seeded starting balances are for demonstration, not production use.
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834

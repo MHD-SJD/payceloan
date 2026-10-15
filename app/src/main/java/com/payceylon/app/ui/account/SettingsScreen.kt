@@ -1,5 +1,9 @@
 package com.payceylon.app.ui.account
 
+<<<<<<< HEAD
+=======
+import android.widget.Toast
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,12 +23,25 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+=======
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
+=======
+import androidx.compose.ui.platform.LocalContext
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.draw.rotate
@@ -34,11 +51,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.payceylon.app.R
+<<<<<<< HEAD
+=======
+import com.payceylon.app.data.BackendApi
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.components.tap
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.LocalWalletColors
 import com.payceylon.app.ui.theme.PayCeylonPrimary
 import com.payceylon.app.ui.wallet.PageHeader
+<<<<<<< HEAD
+=======
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 @Composable
 fun SettingsScreen(
@@ -50,6 +76,7 @@ fun SettingsScreen(
     onLegal: (LegalDocument) -> Unit,
     onHelp: () -> Unit,
     onLogOut: () -> Unit,
+<<<<<<< HEAD
     /** Device-only "unlock with biometrics" switch. */
     appLockEnabled: Boolean,
     onAppLockChange: (Boolean) -> Unit,
@@ -58,6 +85,53 @@ fun SettingsScreen(
     val colors = LocalWalletColors.current
     val profile = account.profile
     var confirmLogOut by rememberSaveable { mutableStateOf(false) }
+=======
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalWalletColors.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val profile = account.profile
+    var confirmLogOut by rememberSaveable { mutableStateOf(false) }
+    val pendingSettings = remember { mutableStateMapOf<AccountSetting, Boolean>() }
+
+    LaunchedEffect(account) {
+        runCatching {
+            val response = BackendApi.get("/me/settings")
+            account.restoreSettings(
+                mapOf(
+                    AccountSetting.BiometricApproval to response.optBoolean("biometricApproval", AccountSetting.BiometricApproval.default),
+                    AccountSetting.HideBalance to response.optBoolean("hideBalance", AccountSetting.HideBalance.default),
+                    AccountSetting.TransactionAlerts to response.optBoolean("transactionAlerts", AccountSetting.TransactionAlerts.default),
+                    AccountSetting.Promotions to response.optBoolean("promotions", AccountSetting.Promotions.default),
+                ),
+            )
+        }.onFailure {
+            Toast.makeText(context, it.message ?: "Could not load settings.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun changeSetting(setting: AccountSetting, enabled: Boolean) {
+        if (pendingSettings.containsKey(setting) || account.isEnabled(setting) == enabled) return
+        pendingSettings[setting] = true
+        scope.launch {
+            try {
+                val field = when (setting) {
+                    AccountSetting.BiometricApproval -> "biometricApproval"
+                    AccountSetting.HideBalance -> "hideBalance"
+                    AccountSetting.TransactionAlerts -> "transactionAlerts"
+                    AccountSetting.Promotions -> "promotions"
+                }
+                BackendApi.patch("/me/settings", JSONObject().put(field, enabled))
+                account.setEnabled(setting, enabled)
+            } catch (error: Exception) {
+                Toast.makeText(context, error.message ?: "Could not update this setting.", Toast.LENGTH_LONG).show()
+            } finally {
+                pendingSettings.remove(setting)
+            }
+        }
+    }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     Column(
         modifier = modifier
@@ -87,7 +161,11 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
+<<<<<<< HEAD
                 ProfileAvatar(account.photo, size = 44.dp, name = profile.name)
+=======
+                ProfileAvatar(account.photo, size = 44.dp)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = profile.name,
@@ -119,7 +197,11 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = R.drawable.ic_user,
                     title = "Personal details",
+<<<<<<< HEAD
                     value = "Name, photo, phone, email",
+=======
+                    value = "Photo, name, username, phone and email",
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     onClick = onEditProfile,
                 )
                 val cardCount = account.cards.size
@@ -135,6 +217,7 @@ fun SettingsScreen(
             }
 
             SettingsSection("Security", Modifier) {
+<<<<<<< HEAD
                 SettingsRow(
                     icon = R.drawable.ic_fingerprint,
                     title = "Biometric unlock",
@@ -149,6 +232,15 @@ fun SettingsScreen(
             SettingsSection("Notifications", Modifier) {
                 SettingToggleRow(account, AccountSetting.TransactionAlerts)
                 SettingToggleRow(account, AccountSetting.Promotions, showDivider = false)
+=======
+                SettingToggleRow(account, AccountSetting.BiometricApproval, pending = AccountSetting.BiometricApproval in pendingSettings, onChange = { changeSetting(AccountSetting.BiometricApproval, it) })
+                SettingToggleRow(account, AccountSetting.HideBalance, showDivider = false, pending = AccountSetting.HideBalance in pendingSettings, onChange = { changeSetting(AccountSetting.HideBalance, it) })
+            }
+
+            SettingsSection("Notifications", Modifier) {
+                SettingToggleRow(account, AccountSetting.TransactionAlerts, pending = AccountSetting.TransactionAlerts in pendingSettings, onChange = { changeSetting(AccountSetting.TransactionAlerts, it) })
+                SettingToggleRow(account, AccountSetting.Promotions, showDivider = false, pending = AccountSetting.Promotions in pendingSettings, onChange = { changeSetting(AccountSetting.Promotions, it) })
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             }
 
             SettingsSection("About", Modifier) {
@@ -222,14 +314,30 @@ fun SettingsScreen(
 }
 
 @Composable
+<<<<<<< HEAD
 private fun SettingToggleRow(account: AccountState, setting: AccountSetting, showDivider: Boolean = true) {
+=======
+private fun SettingToggleRow(
+    account: AccountState,
+    setting: AccountSetting,
+    showDivider: Boolean = true,
+    pending: Boolean = false,
+    onChange: (Boolean) -> Unit,
+) {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val enabled = account.isEnabled(setting)
     SettingsRow(
         icon = setting.icon,
         title = setting.title,
         value = setting.description,
+<<<<<<< HEAD
         onClick = { account.setEnabled(setting, !enabled) },
         showDivider = showDivider,
         trailing = { PayCeylonSwitch(checked = enabled, onCheckedChange = { account.setEnabled(setting, it) }) },
+=======
+        onClick = { if (!pending) onChange(!enabled) },
+        showDivider = showDivider,
+        trailing = { PayCeylonSwitch(checked = enabled, onCheckedChange = { if (!pending) onChange(it) }) },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     )
 }

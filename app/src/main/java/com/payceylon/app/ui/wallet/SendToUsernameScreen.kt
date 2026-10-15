@@ -64,7 +64,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.payceylon.app.R
+<<<<<<< HEAD
 import com.payceylon.app.data.ApiException
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.auth.PayCeylonButton
 import com.payceylon.app.ui.components.PayCeylonDropdownItem
 import com.payceylon.app.ui.components.PayCeylonDropdownSurface
@@ -74,18 +77,25 @@ import com.payceylon.app.ui.components.staggeredEntrance
 import com.payceylon.app.ui.theme.LocalWalletColors
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.PayCeylonPrimary
+<<<<<<< HEAD
 import kotlinx.coroutines.delay
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 @Composable
 fun SendToUsernameScreen(
     recentRecipients: List<PayCeylonUser>,
+<<<<<<< HEAD
     /** Server-side user search (name or @handle). */
     searchUsers: suspend (query: String) -> List<PayCeylonUser>,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onBack: () -> Unit,
     onRecipientSelected: (handle: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+<<<<<<< HEAD
     var matches by remember { mutableStateOf(emptyList<PayCeylonUser>()) }
     LaunchedEffect(query) {
         if (query.isBlank()) {
@@ -100,6 +110,10 @@ fun SendToUsernameScreen(
         }
     }
     val exactMatch = matches.firstOrNull { it.handle.equals(query.trim().removePrefix("@"), ignoreCase = true) }
+=======
+    val matches = remember(query) { searchPayCeylonUsers(query, limit = 4) }
+    val exactMatch = remember(query) { findPayCeylonUser(query.trim()) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val fieldInteraction = remember { MutableInteractionSource() }

@@ -1,5 +1,9 @@
 package com.payceylon.app.ui.wallet
 
+<<<<<<< HEAD
+=======
+import android.widget.Toast
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -16,12 +20,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
+=======
+import androidx.compose.runtime.rememberCoroutineScope
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
+=======
+import androidx.compose.ui.platform.LocalContext
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,11 +41,18 @@ import androidx.compose.ui.unit.sp
 import com.payceylon.app.ui.account.PaymentMethod
 import com.payceylon.app.ui.auth.PayCeylonButton
 import com.payceylon.app.ui.auth.PayCeylonButtonStyle
+<<<<<<< HEAD
 import com.payceylon.app.ui.components.rememberSubmitState
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.LocalWalletColors
 import java.math.BigDecimal
 import java.util.UUID
+=======
+import com.payceylon.app.ui.theme.InterFontFamily
+import com.payceylon.app.ui.theme.LocalWalletColors
+import java.math.BigDecimal
+import kotlinx.coroutines.launch
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 /**
  * Adds LKR to the fiat wallet from a linked card or bank account. Crypto can't be topped up
@@ -43,20 +62,35 @@ import java.util.UUID
 fun TopUpScreen(
     /** Linked cards and bank accounts. */
     methods: List<PaymentMethod>,
+<<<<<<< HEAD
     /** Adds the money; throws ApiException when rejected (e.g. over the limit). */
     onTopUp: suspend (amount: BigDecimal, method: PaymentMethod, requestKey: String) -> Unit,
+=======
+    /** Returns false when the top-up is rejected (e.g. over the limit). */
+    onTopUp: suspend (amount: BigDecimal, method: PaymentMethod) -> Boolean,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onAddMethod: () -> Unit,
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     val asset = Asset.LKR
     val requestKey = rememberSaveable { UUID.randomUUID().toString() }
     val submit = rememberSubmitState()
     var amountInput by rememberSaveable { mutableStateOf("") }
     var methodId by rememberSaveable { mutableStateOf(methods.firstOrNull()?.id) }
     var addedAmount by rememberSaveable { mutableStateOf<String?>(null) }
+=======
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val asset = Asset.LKR
+    var amountInput by rememberSaveable { mutableStateOf("") }
+    var methodId by rememberSaveable { mutableStateOf(methods.firstOrNull()?.id) }
+    var addedAmount by rememberSaveable { mutableStateOf<String?>(null) }
+    var toppingUp by rememberSaveable { mutableStateOf(false) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     // Falls back to the first linked method if the chosen one was removed.
     val method = methods.firstOrNull { it.id == methodId } ?: methods.firstOrNull()
@@ -158,6 +192,7 @@ fun TopUpScreen(
             )
             Spacer(Modifier.height(16.dp))
             PayCeylonButton(
+<<<<<<< HEAD
                 label = when {
                     submit.busy -> "Topping up…"
                     canTopUp -> "Top up LKR ${amount.toAmountString(asset)}"
@@ -172,6 +207,25 @@ fun TopUpScreen(
                     }
                 },
                 enabled = canTopUp && !submit.busy,
+=======
+                label = if (canTopUp) "Top up LKR ${amount.toAmountString(asset)}" else "Top up",
+                onClick = {
+                    if (!toppingUp && method != null) {
+                        toppingUp = true
+                        scope.launch {
+                            try {
+                                if (onTopUp(amount, method)) addedAmount = amount.toPlainString()
+                                else Toast.makeText(context, "The top-up could not be completed.", Toast.LENGTH_LONG).show()
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "The top-up could not be completed.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                toppingUp = false
+                            }
+                        }
+                    }
+                },
+                enabled = canTopUp && !toppingUp,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 style = PayCeylonButtonStyle.Accent,
                 modifier = Modifier,
             )

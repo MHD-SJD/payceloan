@@ -1,7 +1,10 @@
 package com.payceylon.app.ui.account
 
+<<<<<<< HEAD
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -9,6 +12,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
+<<<<<<< HEAD
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.payceylon.app.R
@@ -24,6 +28,13 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.util.UUID
+=======
+import com.payceylon.app.R
+import com.payceylon.app.ui.auth.formatSriLankanMobileNumber
+import com.payceylon.app.ui.wallet.CurrentUser
+import com.payceylon.app.ui.wallet.PayCeylonUser
+import java.math.BigDecimal
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 enum class PaymentMethodType { Card, Bank }
 
@@ -32,7 +43,11 @@ enum class PaymentMethodType { Card, Bank }
  * CVVs never leave the add-card form (a real build hands them to a PCI-compliant tokenizer).
  */
 data class PaymentMethod(
+<<<<<<< HEAD
     val id: String,
+=======
+    val id: Long,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val type: PaymentMethodType,
     /** Card brand ("Visa") or bank name ("Commercial Bank"). */
     val name: String,
@@ -42,6 +57,11 @@ data class PaymentMethod(
     val detail: String,
     /** Cards only. */
     val brand: CardBrand? = null,
+<<<<<<< HEAD
+=======
+    /** Backend UUID when this method has been synced. */
+    val remoteId: String? = null,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 ) {
     val masked: String get() = "•••• $last4"
     val title: String get() = "$name $masked"
@@ -53,7 +73,11 @@ data class PaymentMethod(
     val topUpFeeRate: BigDecimal get() = if (type == PaymentMethodType.Card) BigDecimal("0.015") else BigDecimal.ZERO
 
     /** How long money takes to arrive from (top-up) or at (withdrawal) this method. */
+<<<<<<< HEAD
     val eta: String get() = if (type == PaymentMethodType.Card) "Instant" else "About 5 minutes"
+=======
+    val eta: String get() = if (type == PaymentMethodType.Card) "Instant" else "Within 1 hour"
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 }
 
 enum class CardBrand(
@@ -111,14 +135,25 @@ val SriLankanBanks = listOf(
 enum class NotificationKind { Transaction, Account, Security }
 
 data class AppNotification(
+<<<<<<< HEAD
     val id: String,
+=======
+    val id: Long,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     val kind: NotificationKind,
     val title: String,
     val body: String,
     val timestamp: Long,
     /** Transaction notifications open that transaction. */
+<<<<<<< HEAD
     val transactionId: String? = null,
     val read: Boolean = false,
+=======
+    val transactionId: Long? = null,
+    val read: Boolean = false,
+    /** Backend UUID when this notification came from the API. */
+    val remoteId: String? = null,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 )
 
 enum class ProfileField(val label: String) {
@@ -134,8 +169,11 @@ data class UserProfile(
     /** Nine-digit Sri Lankan mobile number without the +94 prefix. */
     val phone: String,
     val email: String,
+<<<<<<< HEAD
     /** Where the profile photo is served, or null for the default avatar. */
     val photoUrl: String? = null,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 ) {
     val user: PayCeylonUser get() = PayCeylonUser(name, handle)
     val displayPhone: String get() = "+94 ${formatSriLankanMobileNumber(phone)}"
@@ -155,6 +193,7 @@ enum class AccountSetting(
     @param:DrawableRes val icon: Int,
     val default: Boolean,
 ) {
+<<<<<<< HEAD
     // Descriptions stay short enough for one line on a phone.
     BiometricApproval("Biometric approval", "Confirm payments with biometrics", R.drawable.ic_shield, true),
     HideBalance("Hide balance", "Hidden when the app opens", R.drawable.ic_eye_off, false),
@@ -173,12 +212,29 @@ class AccountState(
     private val report: (String) -> Unit,
 ) {
     var profile by mutableStateOf(UserProfile(name = "", handle = "", phone = "", email = ""))
+=======
+    BiometricApproval("Biometric approval", "Confirm payments with your fingerprint", R.drawable.ic_fingerprint, true),
+    HideBalance("Hide balance", "Keep your balance hidden when the app opens", R.drawable.ic_eye_off, false),
+    TransactionAlerts("Transaction alerts", "Notify me when money moves", R.drawable.ic_bell, true),
+    Promotions("Offers & promotions", "Cashback, rewards and PayCeylon news", R.drawable.ic_gift, false),
+}
+
+/**
+ * The signed-in user's profile, linked accounts, settings and notification feed. In-memory
+ * for the prototype; a real build backs this with the account API and Room.
+ */
+class AccountState(now: Long = System.currentTimeMillis()) {
+    var profile by mutableStateOf(
+        UserProfile(CurrentUser.name, CurrentUser.handle, phone = "771234567", email = "kasun.perera@gmail.com"),
+    )
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         private set
 
     /** Custom profile photo; null shows the default avatar. */
     var photo by mutableStateOf<ImageBitmap?>(null)
         private set
 
+<<<<<<< HEAD
     /** The encoded image behind [photo], kept so the local database can store it for offline use. */
     var photoBytes: ByteArray? = null
         private set
@@ -188,11 +244,26 @@ class AccountState(
     val cards: List<PaymentMethod> get() = paymentMethods.filter { it.type == PaymentMethodType.Card }
 
     private var primaryCardId by mutableStateOf<String?>(null)
+=======
+    val paymentMethods = mutableStateListOf(
+        PaymentMethod(1, PaymentMethodType.Card, "Visa", "0928", "Kasun Perera", "Expires 08/29", CardBrand.Visa),
+        PaymentMethod(2, PaymentMethodType.Bank, "Commercial Bank", "2207", "Kasun Perera", "Savings account"),
+        PaymentMethod(3, PaymentMethodType.Bank, "Sampath Bank", "9134", "Kasun Perera", "Current account"),
+    )
+
+    val cards: List<PaymentMethod> get() = paymentMethods.filter { it.type == PaymentMethodType.Card }
+
+    private var primaryCardId by mutableStateOf<Long?>(1)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     /** The card shown on the fiat balance card; falls back to the first if it was removed. */
     val primaryCard: PaymentMethod? get() = cards.firstOrNull { it.id == primaryCardId } ?: cards.firstOrNull()
 
+<<<<<<< HEAD
     fun selectPrimaryCard(id: String) {
+=======
+    fun selectPrimaryCard(id: Long) {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         primaryCardId = id
     }
     val banks: List<PaymentMethod> get() = paymentMethods.filter { it.type == PaymentMethodType.Bank }
@@ -201,6 +272,7 @@ class AccountState(
 
     fun isEnabled(setting: AccountSetting): Boolean = settings[setting] ?: setting.default
 
+<<<<<<< HEAD
     /** Newest first. */
     val notifications = mutableStateListOf<AppNotification>()
 
@@ -341,11 +413,107 @@ class AccountState(
         photo = bitmap
         photoBytes = bytes
         refreshNotificationsQuietly()
+=======
+    val notifications = mutableStateListOf(
+        AppNotification(1, NotificationKind.Security, "New sign-in", "You signed in on this device. Not you? Contact support.", now - 60_000, read = false),
+        AppNotification(2, NotificationKind.Account, "Welcome to PayCeylon", "Your Fiat and Crypto wallets are ready.", now - 3 * 86_400_000L, read = true),
+    )
+
+    val unreadCount: Int get() = notifications.count { !it.read }
+
+    fun notify(kind: NotificationKind, title: String, body: String, transactionId: Long? = null, timestamp: Long = System.currentTimeMillis(), read: Boolean = false) {
+        if (kind == NotificationKind.Transaction && !isEnabled(AccountSetting.TransactionAlerts)) return
+        val notification = AppNotification(
+            id = (notifications.maxOfOrNull { it.id } ?: 0) + 1,
+            kind = kind,
+            title = title,
+            body = body,
+            timestamp = timestamp,
+            transactionId = transactionId,
+            read = read,
+        )
+        // Newest first.
+        val index = notifications.indexOfFirst { it.timestamp < timestamp }.let { if (it < 0) notifications.size else it }
+        notifications.add(index, notification)
+    }
+
+    fun markAllRead() {
+        notifications.indices.forEach { i -> if (!notifications[i].read) notifications[i] = notifications[i].copy(read = true) }
+    }
+
+    fun markRead(id: Long) {
+        val index = notifications.indexOfFirst { it.id == id }
+        if (index >= 0) notifications[index] = notifications[index].copy(read = true)
+    }
+
+    fun replaceNotifications(newNotifications: List<AppNotification>) {
+        if (notifications.toList() != newNotifications) {
+            notifications.clear()
+            notifications.addAll(newNotifications)
+        }
+    }
+
+    fun replacePaymentMethods(methods: List<PaymentMethod>) {
+        paymentMethods.clear()
+        paymentMethods.addAll(methods)
+        if (cards.none { it.id == primaryCardId }) primaryCardId = cards.firstOrNull()?.id
+    }
+
+    fun attachRemotePaymentMethod(localId: Long, remoteId: String) {
+        val index = paymentMethods.indexOfFirst { it.id == localId }
+        if (index >= 0) paymentMethods[index] = paymentMethods[index].copy(remoteId = remoteId)
+    }
+
+    fun restoreSettings(values: Map<AccountSetting, Boolean>) {
+        settings.clear()
+        settings.putAll(values)
+    }
+
+    /**
+     * Saves a profile field after [validateProfileField] passes. Returns the validation error
+     * instead when it doesn't. Phone numbers must already be verified by SMS code.
+     */
+    fun updateProfile(field: ProfileField, rawValue: String): String? {
+        validateProfileField(field, rawValue, profile.handle)?.let { return it }
+        val value = normalizeProfileValue(field, rawValue)
+        if (value == profile.valueOf(field)) return null
+        profile = when (field) {
+            ProfileField.Name -> profile.copy(name = value)
+            ProfileField.Username -> profile.copy(handle = value)
+            ProfileField.Phone -> profile.copy(phone = value)
+            ProfileField.Email -> profile.copy(email = value)
+        }
+        val (kind, body) = when (field) {
+            ProfileField.Name -> NotificationKind.Account to "Your name is now ${profile.name}."
+            ProfileField.Username -> NotificationKind.Account to "Your username is now @${profile.handle}. Old QR codes no longer work."
+            ProfileField.Phone -> NotificationKind.Security to "Your phone number was changed to ${profile.displayPhone}."
+            ProfileField.Email -> NotificationKind.Security to "Your email was changed to ${profile.email}."
+        }
+        notify(kind, "${field.label} updated", body)
+        return null
+    }
+
+    /** Records the number the user just verified at sign-in. */
+    fun signedIn(phone: String) {
+        val digits = normalizeProfileValue(ProfileField.Phone, phone)
+        if (digits.length == 9) profile = profile.copy(phone = digits)
+    }
+
+    fun restoreProfile(name: String, handle: String, phone: String, email: String) {
+        val digits = normalizeProfileValue(ProfileField.Phone, phone)
+        profile = UserProfile(name, handle, digits, email)
+    }
+
+    fun updatePhoto(bitmap: ImageBitmap?) {
+        photo = bitmap
+        notify(NotificationKind.Account, if (bitmap == null) "Profile photo removed" else "Profile photo updated", "Your new look is visible to people you pay.")
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     }
 
     fun setEnabled(setting: AccountSetting, enabled: Boolean) {
         if (isEnabled(setting) == enabled) return
         settings[setting] = enabled
+<<<<<<< HEAD
         scope.launch {
             try {
                 settings.putAll(backend.updateSetting(setting, enabled))
@@ -399,3 +567,52 @@ private fun encodePhoto(bitmap: ImageBitmap): ByteArray =
 
 private fun decodePhoto(bytes: ByteArray): ImageBitmap? =
     BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+=======
+        notify(
+            if (setting == AccountSetting.BiometricApproval) NotificationKind.Security else NotificationKind.Account,
+            "${setting.title} turned ${if (enabled) "on" else "off"}",
+            setting.description + ".",
+        )
+    }
+
+    /** Links a card; only the brand, last four digits and expiry are kept. */
+    fun addCard(number: String, expiry: String, holder: String): PaymentMethod {
+        val digits = number.filter(Char::isDigit)
+        val brand = CardBrand.detect(digits)
+        val method = PaymentMethod(
+            id = nextMethodId(),
+            type = PaymentMethodType.Card,
+            name = brand?.label ?: "Card",
+            last4 = digits.takeLast(4),
+            holder = holder.trim(),
+            detail = "Expires ${expiry.take(2)}/${expiry.drop(2)}",
+            brand = brand,
+        )
+        paymentMethods.add(paymentMethods.indexOfLast { it.type == PaymentMethodType.Card } + 1, method)
+        notify(NotificationKind.Security, "Card added", "${method.title} can now be used to top up.")
+        return method
+    }
+
+    fun addBank(bank: String, accountNumber: String, holder: String, isSavings: Boolean): PaymentMethod {
+        val method = PaymentMethod(
+            id = nextMethodId(),
+            type = PaymentMethodType.Bank,
+            name = bank,
+            last4 = accountNumber.filter(Char::isDigit).takeLast(4),
+            holder = holder.trim(),
+            detail = if (isSavings) "Savings account" else "Current account",
+        )
+        paymentMethods.add(method)
+        notify(NotificationKind.Security, "Bank account linked", "${method.title} can now be used to top up and withdraw.")
+        return method
+    }
+
+    fun removePaymentMethod(id: Long) {
+        val method = paymentMethods.firstOrNull { it.id == id } ?: return
+        paymentMethods.remove(method)
+        notify(NotificationKind.Security, "${if (method.type == PaymentMethodType.Card) "Card" else "Bank account"} removed", "${method.title} is no longer linked.")
+    }
+
+    private fun nextMethodId(): Long = (paymentMethods.maxOfOrNull { it.id } ?: 0) + 1
+}
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834

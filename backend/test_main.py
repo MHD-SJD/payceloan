@@ -59,6 +59,7 @@ class RequestModelTests(unittest.TestCase):
         settings = SettingsPatch.model_validate({"biometricApproval": True, "hideBalance": False})
         self.assertTrue(settings.biometric_approval)
 
+<<<<<<< HEAD
     def test_explicit_nulls_are_rejected(self):
         from pydantic import ValidationError
         from backend.main import ProfilePatch, SettingsPatch
@@ -103,6 +104,8 @@ class FormattingTests(unittest.TestCase):
         self.assertEqual(image_type(b"RIFF\x00\x00\x00\x00WEBPVP8 "), "image/webp")
         self.assertIsNone(image_type(b"<svg></svg>"))
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 if __name__ == "__main__":
     unittest.main()

@@ -129,8 +129,11 @@ fun HomeScreen(
     holdBalanceCount: Boolean,
     onWalletChange: (WalletType) -> Unit,
     onTokenChange: (CryptoToken) -> Unit,
+<<<<<<< HEAD
     /** Deposit address for a token: the per-user one from the server once loaded. */
     addressOf: (CryptoToken) -> String,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onSend: () -> Unit,
     onReceive: () -> Unit,
     onSwap: () -> Unit,
@@ -140,8 +143,11 @@ fun HomeScreen(
     onSeeAllTransactions: () -> Unit,
     /** Profile photo for the header avatar; null shows the default. */
     photo: ImageBitmap?,
+<<<<<<< HEAD
     /** Shown as an initial when there is no photo. */
     userName: String,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     notifications: List<AppNotification>,
     onMarkAllNotificationsRead: () -> Unit,
     onNotificationClick: (AppNotification) -> Unit,
@@ -234,7 +240,10 @@ fun HomeScreen(
                     selectedWallet = selectedWallet,
                     onWalletChange = onWalletChange,
                     photo = photo,
+<<<<<<< HEAD
                     userName = userName,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     notifications = notifications,
                     transactionFor = { id -> transactions.firstOrNull { it.id == id } },
                     onMarkAllNotificationsRead = onMarkAllNotificationsRead,
@@ -257,7 +266,11 @@ fun HomeScreen(
                     modifier = Modifier.staggeredEntrance(1),
                 ) {
                     if (isCrypto) {
+<<<<<<< HEAD
                         TokenAddressRow(token = selectedToken, address = addressOf(selectedToken), onTokenChange = onTokenChange)
+=======
+                        TokenAddressRow(token = selectedToken, onTokenChange = onTokenChange)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     } else {
                         FiatAccountRow(cards = cards, selected = primaryCard, onSelect = onPrimaryCardChange)
                     }
@@ -330,9 +343,14 @@ private fun WalletHeader(
     selectedWallet: WalletType,
     onWalletChange: (WalletType) -> Unit,
     photo: ImageBitmap?,
+<<<<<<< HEAD
     userName: String,
     notifications: List<AppNotification>,
     transactionFor: (String) -> WalletTransaction?,
+=======
+    notifications: List<AppNotification>,
+    transactionFor: (Long) -> WalletTransaction?,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onMarkAllNotificationsRead: () -> Unit,
     onNotificationClick: (AppNotification) -> Unit,
     onProfileClick: () -> Unit,
@@ -440,7 +458,10 @@ private fun WalletHeader(
             }
             ProfileAvatar(
                 photo = photo,
+<<<<<<< HEAD
                 name = userName,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 size = 40.dp,
                 modifier = Modifier.bounceClick(pressedScale = 0.9f, onClick = onProfileClick),
             )
@@ -564,9 +585,13 @@ private fun BalanceCard(
                                 },
                                 modifier = Modifier
                                     .graphicsLayer { alpha = 1f - hideProgress }
+<<<<<<< HEAD
                                     .blur((hideProgress * 14).dp, BlurredEdgeTreatment.Unbounded)
                                     // Room inside the blur layer; without it the blur is cut at the glyph edges.
                                     .padding(BlurBleed),
+=======
+                                    .blur((hideProgress * 14).dp, BlurredEdgeTreatment.Unbounded),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                                 color = LocalWalletColors.current.content,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
@@ -580,8 +605,12 @@ private fun BalanceCard(
                                 text = "\u2022\u2022\u2022\u2022\u2022\u2022",
                                 modifier = Modifier
                                     .graphicsLayer { alpha = hideProgress }
+<<<<<<< HEAD
                                     .blur(((1f - hideProgress) * 14).dp, BlurredEdgeTreatment.Unbounded)
                                     .padding(BlurBleed),
+=======
+                                    .blur(((1f - hideProgress) * 14).dp, BlurredEdgeTreatment.Unbounded),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                                 color = LocalWalletColors.current.content,
                                 fontFamily = InterFontFamily,
                                 fontWeight = FontWeight.SemiBold,
@@ -592,6 +621,7 @@ private fun BalanceCard(
                         }
                         },
                     ) { measurables, constraints ->
+<<<<<<< HEAD
                         // Both children carry BlurBleed padding; lay out by their text size and let
                         // the padding hang outside the slot so nothing shifts.
                         val bleed = BlurBleed.roundToPx()
@@ -605,6 +635,16 @@ private fun BalanceCard(
                         layout(width, height) {
                             figure.placeRelative(-bleed, (height - figure.height) / 2)
                             mask.placeRelative(-bleed, (height - mask.height) / 2)
+=======
+                        val loose = constraints.copy(minWidth = 0)
+                        val figure = measurables[0].measure(loose)
+                        val mask = measurables[1].measure(loose)
+                        val width = (figure.width + (mask.width - figure.width) * hideProgress).toInt()
+                        val height = maxOf(figure.height, mask.height)
+                        layout(width, height) {
+                            figure.placeRelative(0, (height - figure.height) / 2)
+                            mask.placeRelative(0, (height - mask.height) / 2)
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         }
                     }
                 }
@@ -838,6 +878,7 @@ internal fun TransactionRow(
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
             )
+<<<<<<< HEAD
             // A withdrawal waiting on the bank shows "Pending" until it settles.
             val isPending = transaction.status == "PENDING"
             Text(
@@ -846,6 +887,13 @@ internal fun TransactionRow(
                 color = if (isPending) PendingAmber else LocalWalletColors.current.contentSecondary,
                 fontSize = 12.sp,
                 fontWeight = if (isPending) FontWeight.SemiBold else null,
+=======
+            Text(
+                text = relativeTime(transaction.timestamp),
+                style = TrimmedText,
+                color = LocalWalletColors.current.contentSecondary,
+                fontSize = 12.sp,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             )
         }
     }
@@ -855,7 +903,10 @@ internal fun TransactionRow(
 @Composable
 private fun TokenAddressRow(
     token: CryptoToken,
+<<<<<<< HEAD
     address: String,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onTokenChange: (CryptoToken) -> Unit,
 ) {
     val colors = LocalWalletColors.current
@@ -884,7 +935,11 @@ private fun TokenAddressRow(
                 .weight(1f, fill = false)
                 .bounceClick(pressedScale = 0.97f) {
                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+<<<<<<< HEAD
                     clipboard.setPrimaryClip(ClipData.newPlainText("${token.symbol} address", address))
+=======
+                    clipboard.setPrimaryClip(ClipData.newPlainText("${token.symbol} address", token.address))
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     showCopied = true
                 },
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -902,7 +957,11 @@ private fun TokenAddressRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
+<<<<<<< HEAD
                     text = if (showCopied) "Copied" else shortAddress(address),
+=======
+                    text = if (showCopied) "Copied" else token.shortAddress(),
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     color = colors.content,
                     fontFamily = InterFontFamily,
                     fontSize = 14.sp,
@@ -967,12 +1026,15 @@ private fun TokenAddressRow(
 
 private val SheetSpring = spring<Float>(dampingRatio = 0.86f, stiffness = 420f)
 
+<<<<<<< HEAD
 /** Space around the balance figure for its hide/show blur to spread into (the 14dp blur needs ~2x). */
 private val BlurBleed = 16.dp
 
 /** "Pending" on transactions still settling; readable on both the light and dark palettes. */
 internal val PendingAmber = Color(0xFFE39B1B)
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 private data class ExtraAction(
     val label: String,
     @DrawableRes val icon: Int,

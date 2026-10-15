@@ -4,6 +4,7 @@ PayCeylon is an Android wallet for Sri Lanka, built with Kotlin and Jetpack Comp
 fiat (LKR) wallet and a crypto wallet (USDT, BTC, ETH, SOL), with sending, receiving, swapping,
 top-ups, withdrawals and account settings.
 
+<<<<<<< HEAD
 The app talks to the PayCeylon API in [`backend/`](backend/) (FastAPI + PostgreSQL, deployed on
 Railway), signs users in with Firebase phone authentication, and keeps an on-device Room copy
 of the wallet. The API contract is in [`docs/BACKEND_API.md`](docs/BACKEND_API.md). Money,
@@ -28,6 +29,19 @@ Console → Authentication → Sign-in method → Phone. Real SMS needs the Blaz
 - **Onboarding and sign-in:** onboarding pages, Sri Lankan phone number entry, SMS code via
   Firebase with resend, then a one-time profile setup (name and @username required; photo and
   email optional).
+=======
+The Android app uses Firebase phone authentication, caches API snapshots in a private SQLite
+database, and connects to the local FastAPI/PostgreSQL demo backend. Money movement and linked
+cards/banks are simulated only; no real financial service is contacted.
+
+See [`backend/README.md`](backend/README.md) for local setup and
+[`docs/BACKEND_API.md`](docs/BACKEND_API.md) for the API contract.
+
+## Features
+
+- **Onboarding and sign-in:** three swipeable onboarding pages, Sri Lankan phone number entry,
+  6-digit SMS code with resend countdown.
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 - **Home:** fiat / crypto wallet switcher (full-screen transition, crypto switches the app to a
   dark theme), balance card with hide/show (blurred), month-on-month change pill, linked card
   chip, recent transactions, and a glass action bar that drags open for more actions.
@@ -41,11 +55,16 @@ Console → Authentication → Sign-in method → Phone. Real SMS needs the Blaz
   (crypto) and a shareable receipt.
 - **Notifications** dropdown on the bell: transactions plus account and security changes.
 - **Settings:** personal details (photo, name, username, phone with SMS check, email),
+<<<<<<< HEAD
   cards & bank accounts (card brand detected from the number, with its logo), biometric unlock,
   security and notification toggles, privacy policy, terms, help, log out.
 - **Live updates:** balances, history and notifications refresh every 5 seconds while the app
   is open, so a payment from another phone appears within seconds.
 - **Offline:** the last loaded wallet stays visible with an "Offline · showing saved data" note.
+=======
+  cards & bank accounts (card brand detected from the number, with its logo), security and
+  notification toggles, privacy policy, terms, help, log out.
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 - **Deep links:** `payceylon://pay?to=<handle>[&amount=][&currency=]` opens Send Money.
 
 ## Build and run
@@ -53,6 +72,7 @@ Console → Authentication → Sign-in method → Phone. Real SMS needs the Blaz
 Requirements: Android Studio (recent stable), Android SDK 37, JDK 17+ (Android Studio's bundled
 JDK works). The Gradle wrapper (9.5) downloads everything else.
 
+<<<<<<< HEAD
 Per-machine settings go in the untracked `local.properties` (next to `sdk.dir`):
 
 ```properties
@@ -81,10 +101,22 @@ need Android 12+; older versions fall back to plain tints and fades.
 `gradle.properties` sets `android.disallowKotlinSourceSets=false` because Room's code generator
 (KSP) doesn't yet register sources the way AGP 9's built-in Kotlin expects.
 
+=======
+```bash
+./gradlew :app:assembleDebug          # Windows: .\gradlew.bat :app:assembleDebug
+./gradlew :app:testDebugUnitTest      # unit tests
+```
+
+The debug APK is at `app/build/outputs/apk/debug/app-debug.apk`. Or open the folder in Android
+Studio and run the `app` configuration. Minimum Android version: 7.0 (API 24). Blur effects
+need Android 12+; older versions fall back to plain tints and fades.
+
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 ## Project structure
 
 ```
 app/src/main/java/com/payceylon/app/
+<<<<<<< HEAD
 ├── MainActivity.kt              Entry point (FragmentActivity for the biometric prompt), deep links
 ├── PayCeylonApplication.kt      Firebase + service setup from local.properties
 ├── data/
@@ -140,6 +172,46 @@ images/                          Source design assets from Figma
 - Swap rates are fixed demo prices; no real bank, card or blockchain transfers happen.
 - Real SMS codes need the Firebase Blaze plan; until then use the test numbers above.
 - No push notifications (FCM); the app polls every 5 seconds while open.
+=======
+├── MainActivity.kt            Entry point, deep-link intake
+├── data/                       Firebase-backed API client and SQLite response cache
+└── ui/
+    ├── PayCeylonApp.kt        Navigation (single-activity, state-driven) and screen wiring
+    ├── auth/                  Onboarding, phone number, OTP
+    ├── wallet/                Home, Send, Receive, Swap, Top Up, Withdraw, transactions
+    │   └── WalletViewModel.kt Wallet state and actions
+    ├── account/               Settings, profile, cards & banks, notifications, legal
+    │   └── AccountState.kt    Profile, linked accounts, settings, notifications ← backend seam
+    ├── components/            Shared UI: dropdowns, text field, QR code, motion helpers
+    └── theme/                 Colours (fiat / crypto palettes), Inter typography
+docs/BACKEND_API.md            REST contract for the backend
+backend/                       FastAPI service, PostgreSQL schema, and tests
+images/                        Source design assets from Figma
+```
+
+## Local backend
+
+The API is in `backend/main.py` and uses parameterized `asyncpg` queries; its PostgreSQL schema
+is `backend/schema.sql`. The debug Android build connects to the Firebase Auth emulator and local
+API at `10.0.2.2`. Follow [`backend/README.md`](backend/README.md) to start the local services.
+
+### Security rules
+
+- The demo add-card flow must never send or store full card numbers or CVVs. It sends a
+  fictitious token and masked details only.
+- Firebase owns and refreshes ID tokens; SQLite caches API data, not credentials.
+- App backup is disabled (`allowBackup="false"`).
+- Money is `BigDecimal` in the app and decimal strings in JSON, never floating point.
+
+## Demo limitations
+
+- The Firebase Auth emulator is configured for local development. It is not a production Firebase
+  project configuration.
+- Simulated card tokens, balances, rates, addresses, swaps, peer transfers, top-ups and withdrawals
+  do not represent money and must not be used with real financial details.
+- Biometric approval is a stored preference; Android biometric payment approval is not wired up.
+- The SQLite database is a cache. PostgreSQL is the persistent server-side source of truth.
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 ## Credits
 

@@ -1,5 +1,9 @@
 package com.payceylon.app.ui.account
 
+<<<<<<< HEAD
+=======
+import android.widget.Toast
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,12 +19,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+=======
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +47,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.payceylon.app.R
+<<<<<<< HEAD
+=======
+import com.payceylon.app.data.BackendApi
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.components.DropdownAnchor
 import com.payceylon.app.ui.components.PayCeylonPopup
 import com.payceylon.app.ui.components.tap
@@ -39,6 +62,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import com.payceylon.app.ui.wallet.TransactionGlyph
 import com.payceylon.app.ui.wallet.WalletTransaction
+<<<<<<< HEAD
+=======
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 private enum class NotificationFilter(val label: String) { All("All"), Transactions("Transactions"), Account("Account") }
 
@@ -51,21 +80,39 @@ internal fun NotificationsPanel(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     notifications: List<AppNotification>,
+<<<<<<< HEAD
     transactionFor: (String) -> WalletTransaction?,
+=======
+    transactionFor: (Long) -> WalletTransaction?,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onMarkAllRead: () -> Unit,
     onNotificationClick: (AppNotification) -> Unit,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     var filterIndex by rememberSaveable { mutableIntStateOf(0) }
     val filter = NotificationFilter.entries[filterIndex]
     val shown = notifications.filter {
+=======
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val visibleNotifications = notifications
+    var filterIndex by rememberSaveable { mutableIntStateOf(0) }
+    val filter = NotificationFilter.entries[filterIndex]
+    val shown = visibleNotifications.filter {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         when (filter) {
             NotificationFilter.All -> true
             NotificationFilter.Transactions -> it.kind == NotificationKind.Transaction
             NotificationFilter.Account -> it.kind != NotificationKind.Transaction
         }
     }
+<<<<<<< HEAD
     val hasUnread = notifications.any { !it.read }
+=======
+    val hasUnread = visibleNotifications.any { !it.read }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     PayCeylonPopup(
         expanded = expanded,
@@ -90,7 +137,20 @@ internal fun NotificationsPanel(
             if (hasUnread) {
                 Text(
                     text = "Mark all read",
+<<<<<<< HEAD
                     modifier = Modifier.tap(onClick = onMarkAllRead),
+=======
+                    modifier = Modifier.tap {
+                        scope.launch {
+                            try {
+                                BackendApi.post("/notifications/read", JSONObject().put("all", true))
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "Could not update notifications.", Toast.LENGTH_LONG).show()
+                            }
+                            onMarkAllRead()
+                        }
+                    },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     color = colors.contentSecondary,
                     fontFamily = InterFontFamily,
                     fontSize = 13.sp,
@@ -139,7 +199,25 @@ internal fun NotificationsPanel(
                 NotificationRow(
                     notification = notification,
                     transaction = notification.transactionId?.let(transactionFor),
+<<<<<<< HEAD
                     onClick = { onNotificationClick(notification) },
+=======
+                    onClick = {
+                        scope.launch {
+                            try {
+                                notification.remoteId?.let { remoteId ->
+                                    BackendApi.post(
+                                        "/notifications/read",
+                                        JSONObject().put("ids", JSONArray().put(remoteId)),
+                                    )
+                                }
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "Could not update notification status.", Toast.LENGTH_LONG).show()
+                            }
+                            onNotificationClick(notification)
+                        }
+                    },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 )
             }
         }

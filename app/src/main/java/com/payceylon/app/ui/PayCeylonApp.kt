@@ -7,6 +7,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+<<<<<<< HEAD
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.payceylon.app.ui.theme.InterFontFamily
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -39,6 +42,10 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+<<<<<<< HEAD
+=======
+import androidx.compose.runtime.rememberCoroutineScope
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.core.view.WindowCompat
+<<<<<<< HEAD
 import android.os.SystemClock
 import androidx.compose.runtime.DisposableEffect
 import androidx.fragment.app.FragmentActivity
@@ -53,6 +61,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.payceylon.app.ui.account.AccountSetting
 import com.payceylon.app.ui.account.AddBankScreen
@@ -64,6 +74,7 @@ import com.payceylon.app.ui.account.PaymentMethodsScreen
 import com.payceylon.app.ui.account.ProfileField
 import com.payceylon.app.ui.account.ProfileScreen
 import com.payceylon.app.ui.account.SettingsScreen
+<<<<<<< HEAD
 import com.payceylon.app.ui.auth.ConnectionProblemScreen
 import com.payceylon.app.ui.auth.PayCeylonAuthFlow
 import com.payceylon.app.ui.auth.ProfileSetupScreen
@@ -74,6 +85,10 @@ import com.payceylon.app.ui.components.canLockApp
 import com.payceylon.app.ui.components.findActivity
 import com.payceylon.app.ui.components.promptForUnlock
 import com.payceylon.app.ui.components.showError
+=======
+import com.payceylon.app.ui.auth.PayCeylonAuthFlow
+import com.payceylon.app.ui.components.PayCeylonEasing
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.theme.CryptoWalletColors
 import com.payceylon.app.ui.theme.FiatWalletColors
 import com.payceylon.app.ui.theme.LocalWalletColors
@@ -84,7 +99,10 @@ import com.payceylon.app.ui.wallet.QrScanScreen
 import com.payceylon.app.ui.wallet.ReceiveScreen
 import com.payceylon.app.ui.wallet.SendMoneyScreen
 import com.payceylon.app.ui.wallet.SendToUsernameScreen
+<<<<<<< HEAD
 import com.payceylon.app.ui.wallet.SessionState
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.wallet.SwapScreen
 import com.payceylon.app.ui.wallet.TopUpScreen
 import com.payceylon.app.ui.wallet.TransactionDetailScreen
@@ -93,6 +111,7 @@ import com.payceylon.app.ui.wallet.WalletSwitchOverlay
 import com.payceylon.app.ui.wallet.WalletType
 import com.payceylon.app.ui.wallet.WalletViewModel
 import com.payceylon.app.ui.wallet.WithdrawScreen
+<<<<<<< HEAD
 import com.payceylon.app.data.ApiException
 import com.payceylon.app.ui.wallet.toAmountString
 import com.payceylon.app.ui.wallet.toKeypadInput
@@ -118,6 +137,17 @@ private fun OfflineNotice() {
 /** Ordered by depth so transitions can slide forward or back. */
 private enum class AppDestination {
     Auth, ProfileSetup, Home, Transactions, Receive, Swap, TopUp, Withdraw,
+=======
+import com.payceylon.app.ui.wallet.toKeypadInput
+import com.google.firebase.auth.FirebaseAuth
+import com.payceylon.app.data.LocalCache
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+
+/** Ordered by depth so transitions can slide forward or back. */
+private enum class AppDestination {
+    Auth, Home, Transactions, Receive, Swap, TopUp, Withdraw,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     Settings, Profile, EditProfileField, PaymentMethods, AddCard, AddBank, Legal,
     TransactionDetail, QrScan, SendToUsername, SendMoney,
 }
@@ -140,12 +170,18 @@ fun PayCeylonApp(
     onPaymentLinkHandled: () -> Unit = {},
 ) {
     val context = LocalContext.current
+<<<<<<< HEAD
     val account = walletViewModel.account
     // With a saved sign-in, start on Home (hidden under the loading cover) so the wallet appears
     // without onboarding sliding past first.
     var destination by rememberSaveable {
         mutableStateOf(if (walletViewModel.session == SessionState.SignedOut) AppDestination.Auth else AppDestination.Home)
     }
+=======
+    val scope = rememberCoroutineScope()
+    val account = walletViewModel.account
+    var destination by rememberSaveable { mutableStateOf(AppDestination.Auth) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     var recipientHandle by rememberSaveable { mutableStateOf("") }
     // Amount and wallet carried over from a scanned or linked payment request, if it had one.
     var prefillAmount by rememberSaveable { mutableStateOf("") }
@@ -159,8 +195,12 @@ fun PayCeylonApp(
     var editingField by rememberSaveable { mutableStateOf(ProfileField.Name) }
     var legalDocument by rememberSaveable { mutableStateOf(LegalDocument.Privacy) }
     var walletSwitch by remember { mutableStateOf<WalletType?>(null) }
+<<<<<<< HEAD
     var selectedTransactionId by rememberSaveable { mutableStateOf<String?>(null) }
     val session = walletViewModel.session
+=======
+    var selectedTransactionId by rememberSaveable { mutableStateOf<Long?>(null) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     // Bumped for every new payment request so Send Money starts fresh even if it is
     // already on screen (e.g. a link opened while the user was mid-payment).
     var sendMoneySession by rememberSaveable { mutableIntStateOf(0) }
@@ -181,7 +221,11 @@ fun PayCeylonApp(
 
     /** Where the system back gesture and on-screen back buttons lead from each screen. */
     fun parentOf(screen: AppDestination): AppDestination = when (screen) {
+<<<<<<< HEAD
         AppDestination.Auth, AppDestination.ProfileSetup, AppDestination.Home -> screen
+=======
+        AppDestination.Auth, AppDestination.Home -> screen
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         AppDestination.Profile, AppDestination.PaymentMethods, AppDestination.Legal -> AppDestination.Settings
         AppDestination.EditProfileField -> AppDestination.Profile
         AppDestination.AddCard, AppDestination.AddBank -> addMethodOrigin
@@ -195,6 +239,7 @@ fun PayCeylonApp(
         destination = parentOf(destination)
     }
 
+<<<<<<< HEAD
     // The session decides whether the user sees sign-in, profile setup or the wallet.
     LaunchedEffect(session) {
         when (session) {
@@ -282,6 +327,13 @@ fun PayCeylonApp(
     LaunchedEffect(pendingPaymentLink, inWallet) {
         val link = pendingPaymentLink ?: return@LaunchedEffect
         if (!inWallet) return@LaunchedEffect
+=======
+    // Deep links wait until the user has passed the OTP, then open straight into Send Money
+    // (or Receive, for the user's own code).
+    LaunchedEffect(pendingPaymentLink, destination == AppDestination.Auth) {
+        val link = pendingPaymentLink ?: return@LaunchedEffect
+        if (destination == AppDestination.Auth) return@LaunchedEffect
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         if (link.handle.equals(account.profile.handle, ignoreCase = true)) {
             destination = AppDestination.Receive
         } else {
@@ -290,13 +342,35 @@ fun PayCeylonApp(
         onPaymentLinkHandled()
     }
 
+<<<<<<< HEAD
     BackHandler(enabled = inWallet && destination != AppDestination.Home) {
+=======
+    LaunchedEffect(destination) {
+        if (destination != AppDestination.Auth) {
+            walletViewModel.startPolling()
+        } else {
+            walletViewModel.stopPolling()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        walletViewModel.incomingPaymentEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    BackHandler(enabled = destination != AppDestination.Auth && destination != AppDestination.Home) {
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         goBack()
     }
 
     // Onboarding and OTP always use the light palette; the wallet follows the selected wallet.
     val palette = when {
+<<<<<<< HEAD
         !inWallet -> FiatWalletColors
+=======
+        destination == AppDestination.Auth -> FiatWalletColors
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
         walletViewModel.selectedWallet == WalletType.Crypto -> CryptoWalletColors
         else -> FiatWalletColors
     }
@@ -345,12 +419,33 @@ fun PayCeylonApp(
             ) { target ->
                 when (target) {
                     AppDestination.Auth -> PayCeylonAuthFlow(
+<<<<<<< HEAD
                         onAuthenticated = walletViewModel::restoreSession,
                     )
 
                     AppDestination.ProfileSetup -> ProfileSetupScreen(
                         isHandleAvailable = account::isHandleAvailable,
                         onSave = walletViewModel::completeProfile,
+=======
+                        onAuthenticated = { phoneNumber, profileJson ->
+                            val remoteProfile = JSONObject(profileJson)
+                            account.restoreProfile(
+                                name = remoteProfile.optString("name", "PayCeylon User"),
+                                handle = remoteProfile.optString("handle", "user"),
+                                phone = remoteProfile.optString("phone", phoneNumber),
+                                email = remoteProfile.optString("email").takeUnless { it == "null" }.orEmpty(),
+                            )
+                            account.signedIn(phoneNumber)
+                            destination = AppDestination.Home
+                            walletViewModel.startPolling()
+                            scope.launch {
+                                runCatching { walletViewModel.syncAll() }
+                                    .onFailure {
+                                        Toast.makeText(context, it.message ?: "Could not refresh wallet.", Toast.LENGTH_LONG).show()
+                                    }
+                            }
+                        },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     )
 
                     AppDestination.Home -> HomeScreen(
@@ -367,7 +462,10 @@ fun PayCeylonApp(
                             }
                         },
                         onTokenChange = { walletViewModel.selectedToken = it },
+<<<<<<< HEAD
                         addressOf = walletViewModel::addressOf,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         onSend = { destination = AppDestination.QrScan },
                         onReceive = { destination = AppDestination.Receive },
                         onSwap = { destination = AppDestination.Swap },
@@ -380,7 +478,10 @@ fun PayCeylonApp(
                         },
                         onSeeAllTransactions = { destination = AppDestination.Transactions },
                         photo = account.photo,
+<<<<<<< HEAD
                         userName = account.profile.name,
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         notifications = account.notifications,
                         onMarkAllNotificationsRead = account::markAllRead,
                         onNotificationClick = { notification ->
@@ -430,10 +531,14 @@ fun PayCeylonApp(
 
                     AppDestination.TopUp -> TopUpScreen(
                         methods = account.paymentMethods,
+<<<<<<< HEAD
                         onTopUp = { amount, method, key ->
                             confirmPayment("Top up LKR ${amount.toAmountString(Asset.LKR)} from ${method.title}")
                             walletViewModel.topUp(amount, method, key)
                         },
+=======
+                        onTopUp = walletViewModel::topUp,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         onAddMethod = { openAddMethod(AppDestination.AddCard, origin = AppDestination.TopUp) },
                         onBack = ::goBack,
                         onDone = { destination = AppDestination.Home },
@@ -442,10 +547,14 @@ fun PayCeylonApp(
                     AppDestination.Withdraw -> WithdrawScreen(
                         balance = walletViewModel.balanceOf(Asset.LKR),
                         banks = account.banks,
+<<<<<<< HEAD
                         onWithdraw = { amount, bank, key ->
                             confirmPayment("Withdraw LKR ${amount.toAmountString(Asset.LKR)} to ${bank.title}")
                             walletViewModel.withdraw(amount, bank, key)
                         },
+=======
+                        onWithdraw = walletViewModel::withdraw,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         onAddBank = { openAddMethod(AppDestination.AddBank, origin = AppDestination.Withdraw) },
                         onBack = ::goBack,
                         onDone = { destination = AppDestination.Home },
@@ -474,9 +583,19 @@ fun PayCeylonApp(
                                 Toast.makeText(context, "Email support@payceylon.lk", Toast.LENGTH_LONG).show()
                             }
                         },
+<<<<<<< HEAD
                         onLogOut = walletViewModel::logOut,
                         appLockEnabled = appLockEnabled,
                         onAppLockChange = ::setAppLock,
+=======
+                        onLogOut = {
+                            walletViewModel.stopPolling()
+                            walletViewModel.selectedWallet = WalletType.Fiat
+                            FirebaseAuth.getInstance().signOut()
+                            LocalCache(context).use { it.clear() }
+                            destination = AppDestination.Auth
+                        },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                     )
 
                     AppDestination.Profile -> ProfileScreen(
@@ -537,7 +656,10 @@ fun PayCeylonApp(
 
                     AppDestination.SendToUsername -> SendToUsernameScreen(
                         recentRecipients = walletViewModel.recentRecipients,
+<<<<<<< HEAD
                         searchUsers = { query -> walletViewModel.searchUsers(query) },
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                         onBack = ::goBack,
                         onRecipientSelected = { handle ->
                             openSendMoney(PaymentRequest(handle), origin = AppDestination.SendToUsername)
@@ -550,10 +672,14 @@ fun PayCeylonApp(
                             initialAsset = prefillAsset ?: walletViewModel.selectedAsset,
                             initialAmount = prefillAmount,
                             balanceOf = walletViewModel::balanceOf,
+<<<<<<< HEAD
                             onSend = { amount, asset, key ->
                                 confirmPayment("Send ${asset.code} ${amount.toAmountString(asset)} to @$recipientHandle")
                                 walletViewModel.send(recipientHandle, amount, asset, key)
                             },
+=======
+                            onSend = { amount, asset -> walletViewModel.send(recipientHandle, amount, asset) },
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                             onBack = ::goBack,
                             onDone = { destination = AppDestination.Home },
                         )
@@ -561,6 +687,7 @@ fun PayCeylonApp(
                 }
             }
 
+<<<<<<< HEAD
             when (session) {
                 // Brief, while a saved sign-in is checked with the server.
                 SessionState.Checking -> Box(
@@ -598,6 +725,8 @@ fun PayCeylonApp(
                 )
             }
 
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
             walletSwitch?.let { target ->
                 WalletSwitchOverlay(
                     target = target,

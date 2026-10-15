@@ -1,5 +1,9 @@
 package com.payceylon.app.ui.wallet
 
+<<<<<<< HEAD
+=======
+import android.widget.Toast
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -17,12 +21,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
+=======
+import androidx.compose.runtime.rememberCoroutineScope
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
+=======
+import androidx.compose.ui.platform.LocalContext
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,13 +42,20 @@ import androidx.compose.ui.unit.sp
 import com.payceylon.app.ui.account.PaymentMethod
 import com.payceylon.app.ui.auth.PayCeylonButton
 import com.payceylon.app.ui.auth.PayCeylonButtonStyle
+<<<<<<< HEAD
 import com.payceylon.app.ui.components.rememberSubmitState
+=======
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 import com.payceylon.app.ui.components.tap
 import com.payceylon.app.ui.theme.InterFontFamily
 import com.payceylon.app.ui.theme.LocalWalletColors
 import com.payceylon.app.ui.theme.PayCeylonPrimary
 import java.math.BigDecimal
+<<<<<<< HEAD
 import java.util.UUID
+=======
+import kotlinx.coroutines.launch
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
 /**
  * Pays LKR out of the fiat wallet to a linked bank account, with the bank fee added on top.
@@ -47,20 +66,35 @@ fun WithdrawScreen(
     balance: BigDecimal,
     /** Linked bank accounts. */
     banks: List<PaymentMethod>,
+<<<<<<< HEAD
     /** Pays out; throws ApiException when rejected (e.g. insufficient funds). */
     onWithdraw: suspend (amount: BigDecimal, bank: PaymentMethod, requestKey: String) -> Unit,
+=======
+    /** Returns false when the withdrawal is rejected (e.g. insufficient funds). */
+    onWithdraw: suspend (amount: BigDecimal, bank: PaymentMethod) -> Boolean,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
     onAddBank: () -> Unit,
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalWalletColors.current
+<<<<<<< HEAD
     val asset = Asset.LKR
     val requestKey = rememberSaveable { UUID.randomUUID().toString() }
     val submit = rememberSubmitState()
     var amountInput by rememberSaveable { mutableStateOf("") }
     var bankId by rememberSaveable { mutableStateOf(banks.firstOrNull()?.id) }
     var withdrawnAmount by rememberSaveable { mutableStateOf<String?>(null) }
+=======
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val asset = Asset.LKR
+    var amountInput by rememberSaveable { mutableStateOf("") }
+    var bankId by rememberSaveable { mutableStateOf(banks.firstOrNull()?.id) }
+    var withdrawnAmount by rememberSaveable { mutableStateOf<String?>(null) }
+    var withdrawing by rememberSaveable { mutableStateOf(false) }
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
 
     // Falls back to the first linked account if the chosen one was removed.
     val destination = banks.firstOrNull { it.id == bankId } ?: banks.firstOrNull()
@@ -179,6 +213,7 @@ fun WithdrawScreen(
             )
             Spacer(Modifier.height(16.dp))
             PayCeylonButton(
+<<<<<<< HEAD
                 label = when {
                     submit.busy -> "Withdrawing…"
                     canWithdraw -> "Withdraw LKR ${amount.toAmountString(asset)}"
@@ -193,6 +228,25 @@ fun WithdrawScreen(
                     }
                 },
                 enabled = canWithdraw && !submit.busy,
+=======
+                label = if (canWithdraw) "Withdraw LKR ${amount.toAmountString(asset)}" else "Withdraw",
+                onClick = {
+                    if (!withdrawing && destination != null) {
+                        withdrawing = true
+                        scope.launch {
+                            try {
+                                if (onWithdraw(amount, destination)) withdrawnAmount = amount.toPlainString()
+                                else Toast.makeText(context, "The withdrawal could not be completed.", Toast.LENGTH_LONG).show()
+                            } catch (error: Exception) {
+                                Toast.makeText(context, error.message ?: "The withdrawal could not be completed.", Toast.LENGTH_LONG).show()
+                            } finally {
+                                withdrawing = false
+                            }
+                        }
+                    }
+                },
+                enabled = canWithdraw && !withdrawing,
+>>>>>>> dd9f1d175672de1daa0c6fec1db2025dcf550834
                 style = PayCeylonButtonStyle.Accent,
                 modifier = Modifier,
             )
